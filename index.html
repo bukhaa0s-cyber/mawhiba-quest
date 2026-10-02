@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mawhiba Quest — Level 1 practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E2A4A; --ink-soft:#4A5677; --paper:#EEF5FC; --grid:#D6E6F5; --card:#FFFFFF;
+  --sun:#FFC93C; --sun-deep:#E8A600; --mint:#2BA57F; --mint-soft:#DDF3EA;
+  --berry:#E2457A; --berry-soft:#FCE3EC; --sky:#2F7FD8; --line:#C9D8EA;
+  --shadow:0 3px 0 #C3D4E8;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#EAF0FA; --ink-soft:#A9B6CF; --paper:#121A2E; --grid:#1B2540; --card:#1A2440;
+    --sun:#FFC93C; --sun-deep:#FFD866; --mint:#43C79C; --mint-soft:#163A33;
+    --berry:#FF6B9A; --berry-soft:#3A1B2A; --sky:#6AA8F0; --line:#2C3A5E; --shadow:0 3px 0 #0B1122;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#EAF0FA; --ink-soft:#A9B6CF; --paper:#121A2E; --grid:#1B2540; --card:#1A2440;
+  --sun:#FFC93C; --sun-deep:#FFD866; --mint:#43C79C; --mint-soft:#163A33;
+  --berry:#FF6B9A; --berry-soft:#3A1B2A; --sky:#6AA8F0; --line:#2C3A5E; --shadow:0 3px 0 #0B1122;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100%;color:var(--ink);font-family:"Lexend",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.5;
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+h1,h2,h3{font-family:"Baloo 2","Lexend",system-ui,sans-serif;line-height:1.1;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 110px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:1.35rem;display:flex;align-items:center;gap:8px}
+.brand .dot{width:30px;height:30px;border-radius:9px;background:var(--sun);display:grid;place-items:center;color:#1E2A4A;font-size:1rem;transform:rotate(-6deg)}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:600;font-size:.9rem}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+.hello h1{font-size:clamp(2rem,6vw,2.8rem);font-weight:800}
+.hello p{margin:.3rem 0 0;color:var(--ink-soft);max-width:60ch}
+.count{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:12px}
+.count b{font-family:"Baloo 2",sans-serif;font-size:3.2rem;line-height:1;font-weight:800;color:var(--berry)}
+.count span{color:var(--ink-soft)}
+/* Trail */
+.trail{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:8px;margin-top:12px}
+.stone{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:.78rem;font-weight:600;border:2px dashed var(--line);color:var(--ink-soft);position:relative}
+.stone.done{background:var(--sun);border:2px solid var(--sun-deep);color:#1E2A4A}
+.stone.part{background:var(--mint-soft);border:2px solid var(--mint);color:var(--ink)}
+.stone.today{border:3px solid var(--berry);color:var(--ink);font-weight:700}
+.stone.miss{opacity:.45}
+.stone.flag{background:var(--berry);border:2px solid var(--berry);color:#fff;font-size:1rem}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--ink-soft);margin-top:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+/* Mission */
+.mission{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.mission h2{font-size:1.6rem}
+.mission p{margin:.25rem 0 0;opacity:.85}
+.mission .tag{display:inline-block;background:var(--sun);color:#1E2A4A;border-radius:8px;padding:1px 8px;font-size:.8rem;font-weight:600;margin-bottom:6px}
+.btn{border:none;border-radius:14px;padding:12px 20px;font-weight:600;font-size:1rem;background:var(--sun);color:#1E2A4A;box-shadow:0 3px 0 var(--sun-deep);transition:transform .08s}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--sun-deep)}
+.btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--line);box-shadow:var(--shadow)}
+.btn.mint{background:var(--mint);color:#fff;box-shadow:0 3px 0 #1d7a5d}
+.btn.wide{width:100%}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.stat b{display:block;font-family:"Baloo 2",sans-serif;font-size:1.9rem;line-height:1.1}
+.stat span{font-size:.82rem;color:var(--ink-soft)}
+/* Sections */
+.secs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.sec{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.sec .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:1.4rem;margin-bottom:8px}
+.sec h3{font-size:1.15rem}
+.sec p{margin:.2rem 0 0;font-size:.85rem;color:var(--ink-soft)}
+.sec .acc{margin-top:8px;font-size:.8rem;font-weight:600}
+.c-math{background:#DCEBFB;color:#1E4E8C}.c-flex{background:#EDE6FB;color:#5A3FB0}.c-verbal{background:#FCE3EC;color:#A3214F}.c-science{background:#DDF3EA;color:#1D7A5D}
+h2.sh{font-size:1.4rem;margin:22px 0 10px}
+/* Quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.bar{height:12px;background:var(--card);border:2px solid var(--line);border-radius:999px;overflow:hidden;flex:1}
+.bar>div{height:100%;background:var(--mint);transition:width .3s}
+.qcard{padding:22px}
+.qsec{font-size:.8rem;font-weight:600;border-radius:8px;padding:2px 10px;display:inline-block;margin-bottom:10px}
+.prompt{font-size:1.25rem;font-weight:500;margin:0 0 14px;max-width:60ch}
+.vis{display:block;max-width:100%;height:auto;margin:6px auto 16px}
+.opts{display:grid;gap:10px}
+.opts.grid{grid-template-columns:repeat(2,1fr)}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:1.08rem;position:relative;min-height:58px}
+.opt .let{flex:none;width:30px;height:30px;border-radius:9px;background:var(--paper);border:2px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:.9rem}
+.opt .body{flex:1;display:flex;align-items:center;justify-content:center}
+.opts:not(.grid) .opt .body{justify-content:flex-start}
+.opt svg{width:64px;height:64px}
+.opt.sel{border-color:var(--sky);background:color-mix(in srgb,var(--sky) 12%,var(--card))}
+.opt.right{border-color:var(--mint);background:var(--mint-soft)}
+.opt.wrong{border-color:var(--berry);background:var(--berry-soft)}
+.opt.struck .body{opacity:.3;text-decoration:line-through}
+.x{flex:none;border:none;background:transparent;width:32px;height:32px;border-radius:8px;color:var(--ink-soft);font-size:1rem}
+.x:hover{background:var(--paper)}
+.fb{margin-top:14px;border-radius:14px;padding:12px 14px;font-size:.98rem}
+.fb.ok{background:var(--mint-soft);border:2px solid var(--mint)}
+.fb.no{background:var(--berry-soft);border:2px solid var(--berry)}
+.fb b{font-family:"Baloo 2",sans-serif;font-size:1.15rem}
+.qfoot{display:flex;gap:10px;margin-top:16px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.hint{font-size:.82rem;color:var(--ink-soft)}
+.timer{font-family:"Baloo 2",sans-serif;font-weight:700;font-size:1.2rem}
+.timer.low{color:var(--berry)}
+/* Results */
+.big{font-family:"Baloo 2",sans-serif;font-size:4rem;font-weight:800;line-height:1}
+.rows{display:grid;gap:8px;margin-top:10px}
+.row{display:grid;grid-template-columns:130px 1fr 52px;gap:10px;align-items:center;font-size:.92rem}
+.track{height:14px;border-radius:999px;background:var(--paper);border:2px solid var(--line);overflow:hidden}
+.track>div{height:100%;border-radius:999px}
+.rev{border-top:2px dashed var(--line);padding:12px 0}
+.rev:first-child{border-top:none}
+.rev .q{font-weight:500}
+.rev .a{font-size:.9rem;color:var(--ink-soft)}
+.badges{display:flex;flex-wrap:wrap;gap:10px}
+.badge{display:flex;align-items:center;gap:8px;border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:.88rem;background:var(--card)}
+.badge.off{opacity:.4;filter:grayscale(1)}
+.badge i{font-style:normal;font-size:1.3rem}
+.hist{font-size:.9rem}
+.hist div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.hist div:first-child{border-top:none}
+.chartwrap{overflow-x:auto}
+.guide h3{font-size:1.2rem;margin-top:4px}
+.guide p,.guide li{color:var(--ink-soft);max-width:65ch}
+.guide ol{padding-left:1.2rem}
+.guide a{color:var(--sky)}
+.phase{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:12px 0;border-top:2px dashed var(--line)}
+.phase:first-of-type{border-top:none}
+.phase .n{width:36px;height:36px;border-radius:50%;background:var(--sun);color:#1E2A4A;display:grid;place-items:center;font-weight:800;font-family:"Baloo 2",sans-serif}
+.phase.now .n{background:var(--berry);color:#fff}
+.field{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.field input{font:inherit;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);flex:1;min-width:160px}
+/* Nav */
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+nav .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+nav button{background:none;border:none;padding:10px 4px 12px;font-size:.78rem;font-weight:600;color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button .i{font-size:1.3rem}
+nav button.on{color:var(--ink)}
+nav button.on .i{transform:scale(1.15)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:12px;font-weight:600;z-index:20}
+@media (max-width:520px){
+  .synct{display:none}
+  .secs{grid-template-columns:1fr}
+  .mission{grid-template-columns:1fr}
+  .row{grid-template-columns:100px 1fr 44px}
+  .opt svg{width:54px;height:54px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.pop{animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<nav><div class="in" id="nav"></div></nav>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ====================================================================
+   FIREBASE SETUP — paste your own values from the Firebase console here
+   (Project settings → General → Your apps → Web app → SDK setup: Config)
+   Leave apiKey empty to use the app without sync (this device only).
+   ==================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+</script>
+<script>
+(function(){
+"use strict";
+/* ---------------- Constants ---------------- */
+const TEST_DATE = new Date(2026,10,12); // Nov 12 2026
+const PLAN_START = new Date(2026,9,2);  // Oct 2 2026
+const SECS = {
+  math:{name:"Math & Spatial",ico:"🔢",cls:"c-math",desc:"Number patterns, word problems, turning shapes"},
+  flex:{name:"Mental Flexibility",ico:"🧩",cls:"c-flex",desc:"Picture grids, odd one out, growing patterns"},
+  verbal:{name:"Verbal Reasoning",ico:"📖",cls:"c-verbal",desc:"Analogies, word meanings, logic stories"},
+  science:{name:"Science & Mechanics",ico:"⚙️",cls:"c-science",desc:"Gears, balances, everyday science"}
+};
+const SEC_KEYS = Object.keys(SECS);
+const PHASES = [
+  {n:1,name:"Picture patterns",focus:["flex","math"],range:"Oct 2 – Oct 14",tip:"Visual puzzles first. Ask him: what changes from one picture to the next?"},
+  {n:2,name:"Numbers & science",focus:["math","science"],range:"Oct 15 – Oct 26",tip:"Number patterns, gears and balances. Try real toys: a seesaw, a flashlight for shadows."},
+  {n:3,name:"English logic",focus:["verbal"],range:"Oct 27 – Nov 4",tip:"Word relationships and short logic stories so English is never the obstacle."},
+  {n:4,name:"Test rehearsal",focus:["math","flex","verbal","science"],range:"Nov 5 – Nov 11",tip:"Timed mock tests on a screen. Practise crossing out wrong answers."}
+];
+const COLORS = [["#E2457A","pink"],["#2F7FD8","blue"],["#F2A900","yellow"],["#2BA57F","green"],["#7B5CD6","purple"]];
+const SHAPES = ["circle","square","triangle","diamond","star","hexagon"];
+const NAMES = ["Ali","Fahad","Sami","Omar","Khalid","Saad","Yousef","Nawaf","Turki","Hamad"];
+
+/* ---------------- Utilities ---------------- */
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const pad = n => String(n).padStart(2,"0");
+const keyOf = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const midnight = d => new Date(d.getFullYear(),d.getMonth(),d.getDate());
+const todayKey = () => keyOf(new Date());
+const daysBetween = (a,b) => Math.round((midnight(b)-midnight(a))/864e5);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function nearNums(ans, cands){
+  const out=[]; for(const c of shuffle(cands)){ if(c!==ans && c>=0 && !out.includes(c)) out.push(c); if(out.length===3) break; }
+  let k=1; while(out.length<3){ const c=ans+k*(k%2?1:-1)*Math.ceil(k/2); if(c>=0&&c!==ans&&!out.includes(c)) out.push(c); k++; }
+  return out.map(String);
+}
+
+/* ---------------- SVG helpers ---------------- */
+function shp(t,c,cx,cy,r){
+  switch(t){
+    case "circle": return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}"/>`;
+    case "square": {const s=r*1.6;return `<rect x="${cx-s/2}" y="${cy-s/2}" width="${s}" height="${s}" rx="3" fill="${c}"/>`;}
+    case "triangle": return `<polygon points="${cx},${cy-r} ${cx+r*.95},${cy+r*.75} ${cx-r*.95},${cy+r*.75}" fill="${c}"/>`;
+    case "diamond": return `<polygon points="${cx},${cy-r} ${cx+r*.85},${cy} ${cx},${cy+r} ${cx-r*.85},${cy}" fill="${c}"/>`;
+    case "star": {let p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.45:r;p.push((cx+rr*Math.cos(a)).toFixed(1)+","+(cy+rr*Math.sin(a)).toFixed(1));}return `<polygon points="${p.join(" ")}" fill="${c}"/>`;}
+    case "hexagon": {let p=[];for(let i=0;i<6;i++){const a=i*Math.PI/3;p.push((cx+r*Math.cos(a)).toFixed(1)+","+(cy+r*Math.sin(a)).toFixed(1));}return `<polygon points="${p.join(" ")}" fill="${c}"/>`;}
+  }
+}
+const svg = (w,h,inner,label,cls="vis",maxw) => `<svg viewBox="0 0 ${w} ${h}" class="${cls}" role="img" aria-label="${esc(label||"picture")}" ${maxw?`style="max-width:${maxw}px"`:""} xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+const optSvg = (inner,label) => svg(80,80,inner,label,"");
+const INK = "currentColor";
+function arrow(dir){ // dir in degrees: 0 up
+  return `<g transform="rotate(${dir} 40 40)"><rect x="34" y="34" width="12" height="30" rx="3" fill="${INK}"/><polygon points="40,10 60,38 20,38" fill="#E2457A"/></g>`;
+}
+function dots(n,x,y,w){ // dots in a box
+  let s=`<rect x="${x}" y="${y}" width="${w}" height="${w}" rx="10" fill="none" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>`;
+  const cols=n<=4?2:3, gap=w/(cols+1);
+  for(let i=0;i<n;i++){const r=Math.floor(i/cols),c=i%cols;s+=`<circle cx="${x+gap*(c+1)}" cy="${y+gap*(r+1)}" r="${w/12}" fill="#2F7FD8"/>`;}
+  return s;
+}
+
+/* ---------------- Question builder ---------------- */
+function make(sec,prompt,visual,correct,wrongs,explain,kind="text"){
+  const items=shuffle([{v:correct,ok:true},...wrongs.map(v=>({v,ok:false}))]);
+  return {sec,prompt,visual,kind,options:items.map(i=>i.v),answer:items.findIndex(i=>i.ok),explain,key:prompt+(visual||"").length+correct};
+}
+
+/* ---------- Math & spatial ---------- */
+function genSeq(){
+  const t=rnd(0,5); let terms=[],ans,why;
+  if(t===0){const s=rnd(1,9),d=rnd(2,6);terms=[0,1,2,3].map(i=>s+i*d);ans=s+4*d;why=`Each number goes up by ${d}.`;}
+  else if(t===1){const s=rnd(1,4);terms=[s,s*2,s*4,s*8];ans=s*16;why="Each number is doubled (×2).";}
+  else if(t===2){const s=rnd(1,6);terms=[s,s+1,s+3,s+6];ans=s+10;why="Add 1, then 2, then 3… so next add 4.";}
+  else if(t===3){const s=rnd(5,10),a=rnd(3,5),b=rnd(1,2);terms=[s,s+a,s+a-b,s+2*a-b];ans=s+2*a-2*b;why=`The pattern is +${a}, −${b}, +${a}, −${b}.`;}
+  else if(t===4){const s=rnd(1,3);let x=s;terms=[x];for(let i=0;i<3;i++){x=x*2+1;terms.push(x);}ans=x*2+1;why="Double the number, then add 1.";}
+  else {const s=rnd(40,60),d=rnd(3,7);terms=[0,1,2,3].map(i=>s-i*d);ans=s-4*d;why=`Each number goes down by ${d}.`;}
+  const diff=terms[3]-terms[2];
+  return make("math",`What number comes next?<br><span style="font-family:'Baloo 2';font-size:1.7rem;letter-spacing:.04em">${terms.join(" → ")} → ?</span>`,null,String(ans),nearNums(ans,[ans+1,ans-1,ans+2,ans-2,terms[3]+diff,ans+diff]),why);
+}
+function genWord(){
+  const n=pick(NAMES),t=rnd(0,4);
+  if(t===0){const a=rnd(2,5),b=rnd(2,6);return make("math",`${n} has ${a} bags. Each bag has ${b} apples. How many apples does ${n} have?`,null,String(a*b),nearNums(a*b,[a+b,a*b+b,a*b-a,a*b+1]),`${a} bags × ${b} apples = ${a*b}.`);}
+  if(t===1){const a=rnd(8,15),b=rnd(2,6),c=rnd(2,6);const ans=a-b+c;return make("math",`${n} had ${a} stickers. He gave ${b} to a friend, then got ${c} more. How many stickers now?`,null,String(ans),nearNums(ans,[a+b+c,a-b-c,a-b,ans+1]),`${a} − ${b} = ${a-b}, then + ${c} = ${ans}.`);}
+  if(t===2){const k=rnd(2,4);return make("math",`A spider has 8 legs. How many legs do ${k} spiders have?`,null,String(8*k),nearNums(8*k,[8+k,8*k-8,8*k+8,6*k]),`${k} × 8 = ${8*k}.`);}
+  if(t===3){const a=rnd(3,9)*2;return make("math",`${n} cut a pizza into ${a} slices and ate half of them. How many slices are left?`,null,String(a/2),nearNums(a/2,[a,a-2,a/2+1,a/2-1]),`Half of ${a} is ${a/2}, so ${a/2} slices are left.`);}
+  const p=rnd(3,6),q=rnd(2,4);const ans=p*q;return make("math",`Chairs are in ${p} rows with ${q} chairs in each row. How many chairs are there?`,null,String(ans),nearNums(ans,[p+q,ans+p,ans-q,ans+1]),`${p} rows × ${q} chairs = ${ans}.`);
+}
+function genRotate(){
+  const start=pick([0,90,180,270]),t=rnd(0,3);
+  let end,text,why;
+  if(t===0){end=(start+90)%360;text="turns a quarter turn clockwise (like a clock's hands)";why="A quarter turn clockwise moves the arrow one step to the right around the circle.";}
+  else if(t===1){end=(start+270)%360;text="turns a quarter turn counter-clockwise";why="Counter-clockwise is the opposite way to a clock's hands.";}
+  else if(t===2){end=(start+180)%360;text="turns a half turn";why="A half turn makes the arrow point the opposite way.";}
+  else {end=(360-start)%360;text="is seen in a mirror standing beside it";why="A side mirror swaps left and right, but up and down stay the same.";}
+  const dirs=[0,90,180,270];
+  const opts=dirs.map(d=>optSvg(arrow(d),"arrow"));
+  const correct=opts[dirs.indexOf(end)];
+  const wrongs=opts.filter((_,i)=>dirs[i]!==end);
+  return make("math",`The arrow ${text}. Where does it point now?`,svg(80,80,arrow(start),"arrow","vis",110),correct,wrongs,why,"svg");
+}
+/* ---------- Mental flexibility ---------- */
+function genMatrix(){
+  const sh=shuffle(SHAPES).slice(0,3), cols=shuffle(COLORS).slice(0,3);
+  let inner="";const cell=80;
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++){
+    const x=c*cell+40,y=r*cell+40;
+    inner+=`<rect x="${c*cell+4}" y="${r*cell+4}" width="${cell-8}" height="${cell-8}" rx="10" fill="none" stroke="${INK}" stroke-opacity=".25" stroke-width="2"/>`;
+    if(r===2&&c===2){inner+=`<text x="${x}" y="${y+12}" text-anchor="middle" font-size="34" font-family="Baloo 2" font-weight="800" fill="#E2457A">?</text>`;continue;}
+    inner+=shp(sh[(r+c)%3],cols[r][0],x,y,24);
+  }
+  const ansShape=sh[(2+2)%3], ansCol=cols[2][0];
+  const wrongShape=sh[(4+1)%3], wrongCol=cols[0][0];
+  const correct=optSvg(shp(ansShape,ansCol,40,40,26),"answer");
+  const wrongs=[optSvg(shp(wrongShape,ansCol,40,40,26),"shape"),optSvg(shp(ansShape,wrongCol,40,40,26),"shape"),optSvg(shp(sh[(4+2)%3],cols[1][0],40,40,26),"shape")];
+  return make("flex","Which picture completes the grid?",svg(240,240,inner,"three by three grid","vis",250),correct,wrongs,`Each row has one of each shape, and every shape in a row is the same colour. The last row is ${cols[2][1]}, and the missing shape is the ${ansShape}.`,"svg");
+}
+function genOdd(){
+  const byShape=Math.random()<.5;
+  let items=[],why;
+  if(byShape){
+    const [s1,s2]=shuffle(SHAPES);const cs=shuffle(COLORS).slice(0,4);
+    items=[0,1,2,3].map(i=>({s:i===0?s2:s1,c:cs[i][0],odd:i===0}));why=`Three are ${s1}s. The ${s2} is the odd one out — the colours don't matter here.`;
+  } else {
+    const ss=shuffle(SHAPES).slice(0,4);const [c1,c2]=shuffle(COLORS);
+    items=[0,1,2,3].map(i=>({s:ss[i],c:i===0?c2[0]:c1[0],odd:i===0}));why=`Three shapes are ${c1[1]}. The ${c2[1]} one is the odd one out — the shapes are all different, so colour is the rule.`;
+  }
+  const correct=optSvg(shp(items[0].s,items[0].c,40,40,26),"shape");
+  const wrongs=items.slice(1).map(it=>optSvg(shp(it.s,it.c,40,40,26),"shape"));
+  return make("flex","Which one does not belong with the others?",null,correct,wrongs,why,"svg");
+}
+function genGrowth(){
+  const t=rnd(0,2);let seq,ans,why;
+  if(t===0){seq=[1,2,3];ans=4;why="One more dot each time.";}
+  else if(t===1){seq=[1,3,5];ans=7;why="Two more dots each time.";}
+  else {seq=[2,4,6];ans=8;why="Two more dots each time.";}
+  let inner="";seq.forEach((n,i)=>inner+=dots(n,i*90+5,5,80));
+  inner+=`<rect x="275" y="5" width="80" height="80" rx="10" fill="none" stroke="#E2457A" stroke-width="2" stroke-dasharray="6 5"/><text x="315" y="58" text-anchor="middle" font-size="34" font-family="Baloo 2" font-weight="800" fill="#E2457A">?</text>`;
+  const mk=n=>optSvg(dots(n,4,4,72),n+" dots");
+  const wr=shuffle([ans-1,ans+1,ans+2,seq[2]].filter((v,i,a)=>v!==ans&&a.indexOf(v)===i)).slice(0,3);
+  return make("flex","Which box comes next?",svg(360,90,inner,"growing dots","vis",420),mk(ans),wr.map(mk),why,"svg");
+}
+/* ---------- Verbal ---------- */
+const ANALOGIES=[
+["Puppy","Dog","Kitten","Cat",["Mouse","Milk","Lion"],"A puppy is a baby dog, and a kitten is a baby cat."],
+["Bird","Nest","Bee","Hive",["Honey","Flower","Tree"],"A bird lives in a nest; a bee lives in a hive."],
+["Hot","Cold","Up","Down",["High","Sky","Left"],"These are opposites."],
+["Glove","Hand","Sock","Foot",["Shoe","Leg","Warm"],"A glove is worn on the hand; a sock is worn on the foot."],
+["Pen","Write","Knife","Cut",["Fork","Sharp","Cook"],"A pen is used to write; a knife is used to cut."],
+["Fish","Swim","Bird","Fly",["Feather","Sing","Tree"],"This is how each animal moves."],
+["Wheel","Car","Page","Book",["Read","Pen","Library"],"A wheel is part of a car; a page is part of a book."],
+["Hammer","Carpenter","Brush","Painter",["Paint","Wall","Color"],"Each tool is used by that worker."],
+["Day","Night","Summer","Winter",["Sun","Hot","Spring"],"These are opposites."],
+["Cow","Milk","Hen","Eggs",["Farm","Chick","Corn"],"A cow gives us milk; a hen gives us eggs."],
+["Eye","See","Ear","Hear",["Nose","Sound","Head"],"We see with our eyes and hear with our ears."],
+["Apple","Fruit","Carrot","Vegetable",["Orange","Rabbit","Juice"],"An apple is a kind of fruit; a carrot is a kind of vegetable."],
+["Water","Thirsty","Food","Hungry",["Eat","Plate","Full"],"We drink when thirsty and eat when hungry."],
+["Teacher","School","Pilot","Airplane",["Sky","Captain","Bird"],"This is where each person works."],
+["Leaf","Tree","Petal","Flower",["Garden","Bee","Water"],"A leaf is part of a tree; a petal is part of a flower."],
+["Foot","Shoe","Head","Hat",["Hair","Face","Neck"],"A shoe goes on the foot; a hat goes on the head."],
+["Sun","Day","Moon","Night",["Star","Sky","Light"],"We see the sun in the day and the moon at night."],
+["Lion","Roar","Dog","Bark",["Bone","Tail","Meow"],"This is the sound each animal makes."],
+["Kitchen","Cook","Bedroom","Sleep",["Bed","Pillow","Eat"],"This is what we do in each room."],
+["Minute","Hour","Day","Week",["Night","Clock","Second"],"60 minutes make an hour; 7 days make a week."],
+["Caterpillar","Butterfly","Tadpole","Frog",["Fish","Pond","Egg"],"A caterpillar grows into a butterfly; a tadpole grows into a frog."],
+["Ruler","Length","Clock","Time",["Wall","Number","Watch"],"A ruler measures length; a clock measures time."],
+["Library","Books","Zoo","Animals",["Cage","Keeper","Ticket"],"A library keeps books; a zoo keeps animals."],
+["Happy","Smile","Sad","Cry",["Laugh","Face","Party"],"When happy we smile; when sad we cry."],
+["Big","Small","Fast","Slow",["Quick","Run","Car"],"These are opposites."],
+["Finger","Hand","Toe","Foot",["Nail","Leg","Shoe"],"A finger is part of a hand; a toe is part of a foot."]
+];
+function genAnalogy(){const a=pick(ANALOGIES);return make("verbal",`<b>${a[0]}</b> is to <b>${a[1]}</b> as <b>${a[2]}</b> is to ____?`,null,a[3],a[4],a[5]);}
+const ODDWORDS=[
+[["Apple","Banana","Grape"],"Carrot","The others are fruits; a carrot is a vegetable."],
+[["Red","Blue","Green"],"Circle","The others are colours."],
+[["Dog","Cat","Horse"],"Rose","The others are animals; a rose is a flower."],
+[["Car","Bus","Train"],"Chair","The others are things we ride to travel."],
+[["Monday","Friday","Sunday"],"March","The others are days; March is a month."],
+[["Shark","Whale","Dolphin"],"Eagle","The others live in the sea."],
+[["Spoon","Fork","Knife"],"Pillow","The others are used for eating."],
+[["Two","Four","Eight"],"Seven","The others are even numbers."],
+[["Happy","Glad","Joyful"],"Angry","The others mean the same feeling."],
+[["Ant","Bee","Butterfly"],"Spider","The others are insects with 6 legs; a spider has 8."],
+[["Rain","Snow","Hail"],"Sand","The others fall from clouds."],
+[["Square","Triangle","Rectangle"],"Ball","The others are flat shapes."]
+];
+const WORDMEAN=[
+["Which word is the opposite of <b>tiny</b>?","huge",["small","short","thin"]],
+["Which word is the opposite of <b>empty</b>?","full",["open","clean","heavy"]],
+["Which word is the opposite of <b>early</b>?","late",["fast","morning","first"]],
+["Which word is the opposite of <b>quiet</b>?","loud",["calm","soft","slow"]],
+["Which word is the opposite of <b>arrive</b>?","leave",["come","walk","stay"]],
+["Which word is the opposite of <b>brave</b>?","scared",["strong","happy","bold"]],
+["Which word means the same as <b>begin</b>?","start",["finish","stop","wait"]],
+["Which word means the same as <b>quick</b>?","fast",["slow","late","tired"]],
+["Which word means the same as <b>shout</b>?","yell",["whisper","sing","listen"]],
+["Which word means the same as <b>large</b>?","big",["little","long","wide"]],
+["Which word means the same as <b>gift</b>?","present",["party","box","toy"]],
+["Which word means the same as <b>close</b> (a door)?","shut",["open","lock","near"]]
+];
+function genWords(){
+  if(Math.random()<.5){const o=pick(ODDWORDS);return make("verbal","Which word does not belong?",null,o[1],o[0],o[2]);}
+  const w=pick(WORDMEAN);return make("verbal",w[0],null,w[1],w[2],`The answer is "${w[1]}".`);
+}
+function genOrder(){
+  const [a,b,c]=shuffle(NAMES).slice(0,3);
+  const rel=pick([["taller","shortest","tallest"],["faster","slowest","fastest"],["older","youngest","oldest"]]);
+  const askLow=Math.random()<.5;
+  const s=[`${a} is ${rel[0]} than ${b}.`,`${b} is ${rel[0]} than ${c}.`];
+  if(Math.random()<.5)s.reverse();
+  const ans=askLow?c:a;
+  return make("verbal",`${s.join(" ")} Who is the <b>${askLow?rel[1]:rel[2]}</b>?`,null,ans,[a,b,c].filter(x=>x!==ans).concat(["We can't tell"]),
+  `Put them in order: ${a}, then ${b}, then ${c}. So ${ans} is the ${askLow?rel[1]:rel[2]}.`);
+}
+const STORIES=[
+["Sara took her umbrella and put on her boots before going out. What was the weather most likely like?","It was raining",["It was sunny and dry","It was night time","It was very windy and hot"],"An umbrella and boots are for rain."],
+["Omar's ice cream melted very quickly while he sat outside. What is most likely true?","It was a hot day",["It was snowing","It was a cold night","The ice cream was frozen"],"Heat makes ice cream melt fast."],
+["The plant on a dark shelf turned yellow, but the same plant by the window stayed green. Why?","Plants need sunlight",["Plants like shelves","Windows are cold","Yellow is a nice colour"],"The only difference was the light."],
+["All the birds in the cage are yellow. Kiwi is a bird in the cage. What colour is Kiwi?","Yellow",["Green","Blue","We can't tell"],"If ALL the birds are yellow, Kiwi must be yellow too."],
+["Every Friday, Faisal visits his grandmother. Today is Friday. What will Faisal do today?","Visit his grandmother",["Go to school","Stay home all day","Visit his teacher"],"The rule says every Friday."],
+["Lina is older than Nora. Nora is 7 years old. Which is true?","Lina is older than 7",["Lina is 6","Lina is 7","Nora is older than Lina"],"If Lina is older than a 7-year-old, she must be more than 7."],
+["Hamad left a glass of water in the freezer all night. What will he find in the morning?","The water turned to ice",["The glass is empty","The water is hot","The water turned to juice"],"Freezers make water freeze into ice."],
+["Noura's pencil got shorter and shorter all week. What was she doing?","Sharpening and using it",["Keeping it in a box","Watering it","Painting it"],"Pencils get shorter when we sharpen and use them."]
+];
+function genStory(){const s=pick(STORIES);return make("verbal",s[0],null,s[1],s[2],s[3]);}
+/* ---------- Science & mechanics ---------- */
+function gear(cx,cy,r,label,col){
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="10" stroke-dasharray="7 6"/><circle cx="${cx}" cy="${cy}" r="${r-7}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-width="3"/><text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="26" font-family="Baloo 2" font-weight="800" fill="${INK}">${label}</text>`;
+}
+function genGears(){
+  const n=rnd(2,5),cw=Math.random()<.5,r=30,step=64,w=n*step+20;
+  let inner="";const cols=["#2F7FD8","#F2A900","#2BA57F","#7B5CD6","#E2457A"];
+  for(let i=0;i<n;i++)inner+=gear(42+i*step,70,r,"ABCDE"[i],cols[i]);
+  inner+=`<text x="42" y="26" text-anchor="middle" font-size="30" fill="#E2457A">${cw?"↻":"↺"}</text>`;
+  const last="ABCDE"[n-1];const same=n%2===1;
+  const ansCw=same?cw:!cw;
+  const correct=ansCw?"Clockwise ↻":"Counter-clockwise ↺";
+  return make("science",`Gear A turns ${cw?"clockwise ↻":"counter-clockwise ↺"}. Which way does gear ${last} turn?`,svg(w,112,inner,"row of gears","vis",Math.min(440,w*1.3)),correct,[ansCw?"Counter-clockwise ↺":"Clockwise ↻","It does not move"],
+  "Touching gears always turn opposite ways. So the gears take turns: A one way, B the other, C like A, and so on.");
+}
+function seesaw(tilt,left,right){
+  return `<polygon points="160,150 140,185 180,185" fill="${INK}" fill-opacity=".6"/><g transform="rotate(${tilt} 160 150)"><rect x="30" y="144" width="260" height="10" rx="5" fill="${INK}"/>${left}${right}</g>`;
+}
+function genBalance(){
+  const t=rnd(0,2);
+  if(t===0){
+    const items=shuffle([["box","square","#F2A900"],["ball","circle","#2F7FD8"],["star","star","#E2457A"],["cup","diamond","#2BA57F"]]).slice(0,2);
+    const k=rnd(0,2); const tilt=k===0?-12:k===1?12:0;
+    const L=shp(items[0][1],items[0][2],60,118,24),R=shp(items[1][1],items[1][2],260,118,24);
+    const correct=k===0?`The ${items[0][0]}`:k===1?`The ${items[1][0]}`:"They weigh the same";
+    const all=[`The ${items[0][0]}`,`The ${items[1][0]}`,"They weigh the same"].filter(x=>x!==correct);
+    return make("science",`Look at the seesaw. Which is heavier?`,svg(320,195,seesaw(tilt,L,R),"seesaw","vis",340),correct,all,
+    k===2?"The seesaw is level, so both sides weigh the same.":"The heavier side always goes down.");
+  }
+  if(t===1){const a=rnd(2,4),b=a-1;return make("science",`${a} balls weigh the same as 1 box. Which is heavier: 1 box or ${b} balls?`,null,"1 box",[`${b} balls`,"They weigh the same","We can't tell"],`1 box = ${a} balls, and ${a} balls is more than ${b} balls.`);}
+  const a=rnd(2,3),b=rnd(2,4);return make("science",`1 box balances ${a} cups. 1 cup balances ${b} marbles. How many marbles balance 1 box?`,null,String(a*b),nearNums(a*b,[a+b,a*b+b,a*b-a,b]),`${a} cups × ${b} marbles each = ${a*b} marbles.`);
+}
+const FACTS=[
+["Which of these will float in water?","A wooden stick",["An iron nail","A stone","A metal coin"],"Wood is light for its size, so it floats."],
+["Which thing will a magnet pick up?","A paper clip",["A plastic spoon","An eraser","A wooden block"],"Magnets pull things made of iron or steel, like paper clips."],
+["When is your shadow the shortest?","At noon, when the sun is high",["Early in the morning","Late in the evening","At sunset"],"When the sun is high above you, the shadow is small."],
+["What do plants need to make their food?","Sunlight",["Darkness","Noise","Sand only"],"Plants use sunlight, water and air to make food."],
+["An ice cube is left in the sun. What happens?","It melts into water",["It gets bigger","It turns into stone","Nothing happens"],"Heat melts ice into water."],
+["You put a metal spoon and a wooden spoon in hot soup. Which gets hot faster?","The metal spoon",["The wooden spoon","Both the same","Neither gets hot"],"Metal lets heat travel through it quickly."],
+["Wet clothes on a line become dry. Where did the water go?","Into the air",["Into the clothes","Into the line","It turned to ice"],"Water evaporates — it goes into the air as tiny drops we can't see."],
+["Which one is a living thing?","A tree",["A rock","A car","A cloud"],"Trees grow, need food and water, and make new plants."],
+["Two balls roll down ramps. Which ramp makes the ball go faster?","The steeper ramp",["The flatter ramp","Both the same","The shorter ball"],"A steeper slope makes things speed up more."],
+["Light can pass through which of these?","Clear glass",["A wooden door","A metal plate","A brick wall"],"Clear glass is see-through, so light passes through it."],
+["Which animal is a mammal?","A whale",["A shark","A frog","An eagle"],"Whales breathe air and feed their babies milk, like all mammals."],
+["How can you make a drum sound louder?","Hit it harder",["Hit it softer","Paint it","Put it in a bag"],"A harder hit makes bigger vibrations, which sound louder."],
+["A heavy boy and a light boy want to balance on a seesaw. Where should the heavy boy sit?","Closer to the middle",["At the very end","On the light boy's side","It doesn't matter"],"Sitting nearer the middle gives the heavy side less turning power."],
+["What happens to water when you heat it a lot?","It boils and turns into steam",["It turns into ice","It turns into sand","It stays the same"],"Very hot water boils and becomes steam."],
+["Rub your hands together quickly. How do they feel?","Warm",["Cold","Wet","Sticky"],"Rubbing makes friction, and friction makes heat."],
+["Which of these needs electricity to work?","A lamp",["A book","A ball","A spoon"],"A lamp needs electricity to make light."],
+["You push two magnets together with the same ends (north to north). What happens?","They push each other away",["They stick together","They get hot","Nothing happens"],"Same poles push away; opposite poles pull together."],
+["A plant is put near a window. Which way does it grow?","Toward the light",["Away from the light","Straight down","It stops growing"],"Plants bend toward light because they need it."],
+["Where does a shadow appear?","On the side away from the light",["On the side facing the light","Inside the light","Only at night"],"An object blocks light, so the shadow falls behind it."],
+["A seed is planted with soil, water and sun. What does it grow into?","A plant",["A rock","An animal","A cloud"],"Seeds grow into new plants."],
+["Which is easier to push across the floor?","An empty box",["A box full of books","A box full of stones","A box full of water"],"Lighter things need less force to move."],
+["Why can we see the Moon at night?","It reflects light from the Sun",["It makes its own fire","It is a light bulb","Stars paint it"],"The Moon has no light of its own; it bounces sunlight to us."]
+];
+function genFact(){const f=pick(FACTS);return make("science",f[0],null,f[1],f[2],f[3]);}
+
+const GENS={
+  math:[genSeq,genSeq,genWord,genRotate],
+  flex:[genMatrix,genOdd,genGrowth,genMatrix],
+  verbal:[genAnalogy,genWords,genOrder,genStory],
+  science:[genGears,genBalance,genFact,genFact]
+};
+function buildSet(plan){ // plan: array of section keys
+  const used=new Set(),out=[];
+  for(const s of plan){
+    let q,tries=0; do{q=pick(GENS[s])();tries++;}while(used.has(q.key)&&tries<20);
+    used.add(q.key);out.push(q);
+  }
+  return out;
+}
+
+/* ---------------- State & sync ---------------- */
+const LS="mawhiba-quest-v1";
+const blank=()=>rebuild({name:"",nameAt:0,resetAt:0,sessions:[],stats:{},days:{},updatedAt:0});
+function rebuild(o){ // stats and days are always recomputed from sessions
+  o.stats={};for(const k of SEC_KEYS)o.stats[k]={c:0,t:0};
+  o.days={};
+  for(const s of o.sessions){
+    for(const k in (s.by||{})){if(o.stats[k]){o.stats[k].c+=s.by[k][0];o.stats[k].t+=s.by[k][1];}}
+    const dk=keyOf(new Date(s.at));o.days[dk]=o.days[dk]||{q:0,c:0,mission:false};
+    o.days[dk].q+=s.t;o.days[dk].c+=s.c;if(s.mode==="mission"||s.mode==="mock")o.days[dk].mission=true;
+  }
+  return o;
+}
+function normalize(x){
+  const b=blank();x=x||{};
+  b.name=typeof x.name==="string"?x.name:"";b.nameAt=+x.nameAt||0;b.resetAt=+x.resetAt||0;b.updatedAt=+x.updatedAt||0;
+  b.sessions=(Array.isArray(x.sessions)?x.sessions:[]).filter(s=>s&&typeof s.at==="number"&&s.at>b.resetAt).sort((a,c)=>a.at-c.at).slice(-1000);
+  return rebuild(b);
+}
+function merge(a,b){ // combine two copies without losing anyone's rounds
+  const o=blank();
+  o.resetAt=Math.max(a.resetAt||0,b.resetAt||0);
+  const seen=new Map();for(const s of [...a.sessions,...b.sessions])if(s.at>o.resetAt)seen.set(s.at+"|"+s.mode+"|"+s.t,s);
+  o.sessions=[...seen.values()].sort((x,y)=>x.at-y.at).slice(-1000);
+  const nb=(b.nameAt||0)>(a.nameAt||0)?b:a;o.name=nb.name;o.nameAt=nb.nameAt||0;
+  o.updatedAt=Math.max(a.updatedAt||0,b.updatedAt||0);
+  return rebuild(o);
+}
+const sig=o=>o.sessions.length+"|"+(o.sessions.length?o.sessions[o.sessions.length-1].at:0)+"|"+o.resetAt+"|"+o.nameAt;
+const plain=o=>({name:o.name,nameAt:o.nameAt,resetAt:o.resetAt,sessions:o.sessions,updatedAt:o.updatedAt});
+let S=blank();
+try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw));}catch(e){}
+
+const SYNC_ON=!!(typeof FIREBASE_CONFIG!=="undefined"&&FIREBASE_CONFIG.apiKey&&window.firebase);
+const FB={user:null,ready:!SYNC_ON,ref:null,status:SYNC_ON?"syncing":"local",lastRemote:null,timer:null,unsub:null,authErr:""};
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(plain(S)));}catch(e){}}
+function save(){
+  S.updatedAt=Date.now();rebuild(S);saveLocal();
+  if(FB.ref){clearTimeout(FB.timer);FB.timer=setTimeout(push,400);}
+}
+function push(){
+  if(!FB.ref)return;
+  const out=FB.lastRemote?merge(FB.lastRemote,S):S;
+  FB.status="syncing";paintSync();
+  FB.ref.set(plain(out)).then(()=>{FB.status=navigator.onLine===false?"offline":"synced";paintSync();})
+    .catch(()=>{FB.status="error";paintSync();});
+}
+function paintSync(){const el=document.getElementById("sync");if(el)el.outerHTML=syncPill();}
+function syncPill(){
+  const m={local:["📱","This device"],syncing:["🔄","Syncing"],synced:["☁️","Synced"],offline:["📴","Offline"],error:["⚠️","Sync error"]}[FB.status];
+  return `<span class="pill" id="sync" title="${m[1]}">${m[0]} <span class="synct">${m[1]}</span></span>`;
+}
+function initFirebase(){
+  if(!SYNC_ON)return;
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const db=firebase.firestore();
+    try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{});}catch(e){}
+    firebase.auth().onAuthStateChanged(u=>{
+      FB.user=u;FB.ready=true;
+      if(FB.unsub){FB.unsub();FB.unsub=null;}
+      if(!u){FB.ref=null;render();return;}
+      FB.ref=db.collection("families").doc(u.uid);
+      FB.unsub=FB.ref.onSnapshot(snap=>{
+        const r=snap.exists?normalize(snap.data()):blank();
+        FB.lastRemote=r;
+        const before=sig(S);const m=merge(r,S);
+        S=m;saveLocal();
+        if(sig(m)!==sig(r))push();
+        else{FB.status=snap.metadata.fromCache?"offline":"synced";}
+        if(sig(m)!==before||!Q)render();else paintSync();
+      },()=>{FB.status="error";paintSync();});
+      render();
+    });
+  }catch(e){FB.ready=true;FB.status="error";}
+}
+window.addEventListener("online",()=>{if(FB.ref)push();});
+window.addEventListener("offline",()=>{if(FB.ref){FB.status="offline";paintSync();}});
+
+/* ---------------- Derived ---------------- */
+function daysLeft(){return daysBetween(new Date(),TEST_DATE);}
+function phase(){const d=daysLeft();if(d>=29)return PHASES[0];if(d>=17)return PHASES[1];if(d>=8)return PHASES[2];return PHASES[3];}
+function streak(){
+  let n=0,d=midnight(new Date());
+  if(!S.days[keyOf(d)])d.setDate(d.getDate()-1);
+  while(S.days[keyOf(d)]&&S.days[keyOf(d)].q>0){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+const totalCorrect=()=>SEC_KEYS.reduce((a,k)=>a+S.stats[k].c,0);
+const totalQ=()=>SEC_KEYS.reduce((a,k)=>a+S.stats[k].t,0);
+const acc=k=>S.stats[k].t?Math.round(100*S.stats[k].c/S.stats[k].t):null;
+function weakest(){let w=null,lo=101;for(const k of SEC_KEYS){const a=acc(k);if(a!==null&&S.stats[k].t>=5&&a<lo){lo=a;w=k;}}return w;}
+const BADGES=[
+  {i:"🌱",n:"First quiz",ok:()=>S.sessions.length>=1},
+  {i:"🔥",n:"3-day streak",ok:()=>bestStreak()>=3},
+  {i:"🚀",n:"7-day streak",ok:()=>bestStreak()>=7},
+  {i:"💯",n:"Perfect 10",ok:()=>S.sessions.some(s=>s.t>=10&&s.c===s.t)},
+  {i:"⭐",n:"100 correct",ok:()=>totalCorrect()>=100},
+  {i:"🧠",n:"All 4 areas",ok:()=>SEC_KEYS.every(k=>S.stats[k].t>=10)},
+  {i:"⏱️",n:"Mock test done",ok:()=>S.sessions.some(s=>s.mode==="mock")},
+  {i:"🏆",n:"Mock 80%+",ok:()=>S.sessions.some(s=>s.mode==="mock"&&s.c/s.t>=.8)}
+];
+function bestStreak(){const ks=Object.keys(S.days).filter(k=>S.days[k].q>0).sort();let best=0,cur=0,prev=null;for(const k of ks){const d=new Date(k+"T00:00:00");if(prev&&daysBetween(prev,d)===1)cur++;else cur=1;best=Math.max(best,cur);prev=d;}return best;}
+
+/* ---------------- Routing ---------------- */
+let view="today", Q=null, timerInt=null;
+const NAV=[["today","🏠","Today"],["practice","🧩","Practice"],["progress","📈","Progress"],["guide","🧭","Guide"]];
+function go(v){view=v;Q=null;clearInterval(timerInt);render();window.scrollTo(0,0);}
+function renderNav(){
+  $("#nav").innerHTML=NAV.map(([k,i,l])=>`<button data-go="${k}" class="${view===k||(Q&&k==="practice"&&false)?"on":""}" aria-label="${l}"><span class="i">${i}</span>${l}</button>`).join("");
+  document.querySelector("nav").style.display=Q?"none":"block";
+}
+function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);}
+
+function top(){
+  const st=streak();
+  return `<div class="top"><div class="brand"><span class="dot">✦</span>Mawhiba Quest</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">${syncPill()}<span class="pill" title="Day streak">🔥 ${st}</span><span class="pill" title="Correct answers">⭐ ${totalCorrect()}</span></div></div>`;
+}
+
+/* ---------------- Views ---------------- */
+function vToday(){
+  const dl=daysLeft(),ph=phase(),tk=todayKey(),td=S.days[tk];
+  const name=S.name||"Champion";
+  let countLine;
+  if(dl>1)countLine=`<b>${dl}</b><span>days until test day — Thursday, November 12</span>`;
+  else if(dl===1)countLine=`<b>1</b><span>day left. Test is tomorrow — rest well tonight!</span>`;
+  else if(dl===0)countLine=`<b>Today!</b><span>Test day. Breathe, read carefully, and cross out wrong answers.</span>`;
+  else countLine=`<b>Done</b><span>The test is finished. Keep practising for fun!</span>`;
+  // trail
+  let stones="";const total=daysBetween(PLAN_START,TEST_DATE);
+  for(let i=0;i<total;i++){
+    const d=new Date(PLAN_START);d.setDate(d.getDate()+i);const k=keyOf(d),rec=S.days[k];
+    const isToday=k===tk,past=midnight(d)<midnight(new Date());
+    let cls="stone";if(rec&&rec.mission)cls+=" done";else if(rec&&rec.q>0)cls+=" part";else if(past)cls+=" miss";
+    if(isToday)cls+=" today";
+    stones+=`<div class="${cls}" title="${d.toDateString()}">${rec&&rec.mission?"★":d.getDate()}</div>`;
+  }
+  stones+=`<div class="stone flag" title="Test day">🏁</div>`;
+  const missionDone=td&&td.mission;
+  const w=weakest();
+  return `${top()}
+  <section class="card hello">
+    <h1>Hi ${esc(name)}!</h1>
+    <div class="count">${countLine}</div>
+  </section>
+  <section class="card mission">
+    <div>
+      <span class="tag">Phase ${ph.n} · ${ph.name}</span>
+      <h2>${missionDone?"Mission complete ★":"Today's mission"}</h2>
+      <p>${missionDone?"Great work today. You can play extra rounds in Practice.":`10 questions, about 15 minutes. Focus: ${ph.focus.map(f=>SECS[f].name).join(" + ")}.`}</p>
+    </div>
+    <button class="btn" data-act="mission">${missionDone?"Play again":"Start mission"}</button>
+  </section>
+  <div class="stats">
+    <div class="stat"><b>${td?td.q:0}</b><span>questions today</span></div>
+    <div class="stat"><b>${totalQ()?Math.round(100*totalCorrect()/totalQ()):0}%</b><span>correct overall</span></div>
+    <div class="stat"><b>${Object.values(S.days).filter(d=>d.mission).length}</b><span>missions done</span></div>
+  </div>
+  <h2 class="sh">The road to test day</h2>
+  <section class="card">
+    <div class="trail">${stones}</div>
+    <div class="legend"><span><i style="background:var(--sun)"></i>Mission done</span><span><i style="background:var(--mint-soft);border:2px solid var(--mint)"></i>Some practice</span><span><i style="border:3px solid var(--berry)"></i>Today</span></div>
+  </section>
+  ${w?`<section class="card"><b>Parent tip:</b> ${SECS[w].name} is the trickiest area so far (${acc(w)}%). Try a practice round there today.<div style="margin-top:10px"><button class="btn ghost" data-sec="${w}">Practise ${SECS[w].name}</button></div></section>`:""}
+  <section class="card"><b>Coach tip for this phase:</b> <span style="color:var(--ink-soft)">${ph.tip}</span></section>`;
+}
+function vPractice(){
+  return `${top()}
+  <h1 style="font-size:2rem">Practice</h1>
+  <p style="color:var(--ink-soft);margin:.3rem 0 14px">Pick an area for 10 questions with explanations after each one.</p>
+  <div class="secs">${SEC_KEYS.map(k=>{const a=acc(k);return `<button class="sec" data-sec="${k}"><div class="ico ${SECS[k].cls}">${SECS[k].ico}</div><h3>${SECS[k].name}</h3><p>${SECS[k].desc}</p><div class="acc">${a===null?"Not tried yet":`${a}% correct · ${S.stats[k].t} answered`}</div></button>`;}).join("")}</div>
+  <h2 class="sh">Mock test</h2>
+  <section class="card">
+    <p style="margin:0 0 12px;color:var(--ink-soft)">20 mixed questions in 25 minutes, like the real screen test. No hints until the end, then a full review.</p>
+    <button class="btn mint" data-act="mock">Start mock test</button>
+  </section>`;
+}
+function vProgress(){
+  // last 14 days chart
+  const days=[];for(let i=13;i>=0;i--){const d=midnight(new Date());d.setDate(d.getDate()-i);const r=S.days[keyOf(d)]||{q:0,c:0};days.push({d,q:r.q||0,c:r.c||0});}
+  const maxQ=Math.max(10,...days.map(x=>x.q));const W=560,H=170,bw=W/14;
+  let bars="";days.forEach((x,i)=>{const h=(x.q/maxQ)*(H-40),hc=(x.c/maxQ)*(H-40);bars+=`<rect x="${i*bw+6}" y="${H-24-h}" width="${bw-12}" height="${h}" rx="5" fill="#2F7FD8" fill-opacity=".25"/><rect x="${i*bw+6}" y="${H-24-hc}" width="${bw-12}" height="${hc}" rx="5" fill="#2BA57F"/><text x="${i*bw+bw/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${INK}" fill-opacity=".7">${x.d.getDate()}</text>`;});
+  const rows=SEC_KEYS.map(k=>{const a=acc(k);const col={math:"#2F7FD8",flex:"#7B5CD6",verbal:"#E2457A",science:"#2BA57F"}[k];return `<div class="row"><span>${SECS[k].ico} ${SECS[k].name.split(" ")[0]}</span><div class="track"><div style="width:${a||0}%;background:${col}"></div></div><b>${a===null?"–":a+"%"}</b></div>`;}).join("");
+  const hist=S.sessions.slice(-12).reverse().map(s=>`<div><span>${new Date(s.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${s.mode==="mock"?"Mock test":s.mode==="mission"?"Mission":SECS[s.sec]?SECS[s.sec].name:"Practice"}</span><b>${s.c}/${s.t} · ${Math.max(1,Math.round(s.secs/60))} min</b></div>`).join("");
+  return `${top()}
+  <h1 style="font-size:2rem;margin-bottom:12px">Progress</h1>
+  <div class="stats" style="margin-bottom:16px">
+    <div class="stat"><b>${totalQ()}</b><span>questions answered</span></div>
+    <div class="stat"><b>${bestStreak()}</b><span>best streak (days)</span></div>
+    <div class="stat"><b>${Math.round(S.sessions.reduce((a,s)=>a+s.secs,0)/60)}</b><span>minutes practised</span></div>
+  </div>
+  <section class="card"><h3 style="font-size:1.2rem">Accuracy by area</h3><div class="rows">${rows}</div></section>
+  <section class="card"><h3 style="font-size:1.2rem">Last 14 days</h3><p style="margin:.2rem 0 6px;font-size:.85rem;color:var(--ink-soft)">Green is correct answers; the pale bar is all questions answered.</p><div class="chartwrap">${svg(W,H,bars,"daily practice chart","vis")}</div></section>
+  <section class="card"><h3 style="font-size:1.2rem;margin-bottom:10px">Badges</h3><div class="badges">${BADGES.map(b=>`<div class="badge ${b.ok()?"":"off"}"><i>${b.i}</i>${b.n}</div>`).join("")}</div></section>
+  <section class="card"><h3 style="font-size:1.2rem;margin-bottom:6px">Recent sessions</h3><div class="hist">${hist||'<p style="color:var(--ink-soft);margin:0">No sessions yet. Start today\'s mission to see results here.</p>'}</div></section>
+  <section class="card"><h3 style="font-size:1.2rem;margin-bottom:10px">Settings</h3>
+    <div class="field"><input id="nm" placeholder="Your son's name" value="${esc(S.name)}" maxlength="24" aria-label="Child's name"><button class="btn ghost" data-act="savename">Save name</button></div>
+    <p style="margin:14px 0 8px;font-size:.88rem;color:var(--ink-soft)">${FB.user?`Signed in as ${esc(FB.user.email||"family")}. Progress syncs to every phone signed in with this account.`:SYNC_ON?"":"Sync is off, so progress saves on this device only. Add your Firebase settings to index.html to turn on sync."} Backups are an extra safety copy.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn ghost" data-act="backup">Download backup</button><button class="btn ghost" data-act="restore">Restore backup</button><input type="file" id="rf" accept=".json,application/json" hidden></div>
+    <div style="margin-top:14px"><button class="btn ghost" data-act="reset" style="color:var(--berry)">Reset all progress</button>${FB.user?' <button class="btn ghost" data-act="signout">Sign out</button>':""}</div>
+  </section>`;
+}
+function vGuide(){
+  const ph=phase();
+  return `${top()}
+  <div class="guide">
+  <h1 style="font-size:2rem;margin-bottom:12px">Guide for parents</h1>
+  <section class="card"><h3>The four areas in this app</h3>
+  <p>${SEC_KEYS.map(k=>`<b>${SECS[k].ico} ${SECS[k].name}</b> — ${SECS[k].desc.toLowerCase()}.`).join("<br>")}</p>
+  <p>These follow the four areas in your booking notes. All questions here are original practice items in the same style, not real test questions.</p></section>
+  <section class="card"><h3>The 40-day plan</h3>
+  ${PHASES.map(p=>`<div class="phase ${p.n===ph.n?"now":""}"><div class="n">${p.n}</div><div><b>${p.name}</b> <span style="color:var(--ink-soft);font-size:.85rem">${p.range}${p.n===ph.n?" · now":""}</span><p style="margin:.2rem 0 0">${p.tip}</p></div></div>`).join("")}
+  <p>The daily mission follows this plan on its own: 6 questions from the current focus and 4 mixed, so earlier skills stay fresh.</p></section>
+  <section class="card"><h3>Habits that help</h3><ol>
+  <li>Keep sessions short — one mission (about 15 minutes) a day beats a long weekend cram.</li>
+  <li>Use the ✕ button to cross out answers that are clearly wrong. Picking from two choices is much easier than four.</li>
+  <li>After a wrong answer, ask him to explain the rule back to you in his own words.</li>
+  <li>In phase 4, do the mock test on the same kind of screen he'll use at the test centre.</li>
+  <li>The night before: sleep early, no new material.</li></ol></section>
+  <section class="card"><h3>Official source</h3><p>Check Mawhiba's own site for the official sample test and any updates to the test day details: <a href="https://www.mawhiba.sa" target="_blank" rel="noopener">mawhiba.sa</a>.</p></section>
+  </div>`;
+}
+
+/* ---------------- Quiz ---------------- */
+function startQuiz(mode,sec){
+  let plan;
+  if(mode==="mission"){
+    const ph=phase();const others=SEC_KEYS.filter(k=>!ph.focus.includes(k));
+    if(ph.n===4) plan=shuffle([...SEC_KEYS,...SEC_KEYS,"math","flex"]).slice(0,10);
+    else{const f=[];for(let i=0;i<6;i++)f.push(ph.focus[i%ph.focus.length]);const o=[];for(let i=0;i<4;i++)o.push((others.length?others:SEC_KEYS)[i%(others.length||4)]);plan=shuffle([...f,...o]);}
+  } else if(mode==="mock"){plan=shuffle([...Array(5).fill("math"),...Array(5).fill("flex"),...Array(5).fill("verbal"),...Array(5).fill("science")]);}
+  else plan=Array(10).fill(sec);
+  Q={mode,sec,list:buildSet(plan),i:0,ans:[],struck:[],picked:null,locked:false,start:Date.now(),end:mode==="mock"?Date.now()+25*60e3:null};
+  Q.struck=Q.list.map(()=>new Set());
+  render();window.scrollTo(0,0);
+  if(Q.end){clearInterval(timerInt);timerInt=setInterval(tick,1000);}
+}
+function tick(){
+  if(!Q||!Q.end){clearInterval(timerInt);return;}
+  const left=Math.max(0,Q.end-Date.now());const el=$("#timer");
+  if(el){el.textContent=fmt(left);el.classList.toggle("low",left<3*60e3);}
+  if(left<=0){clearInterval(timerInt);while(Q.ans.length<Q.list.length)Q.ans.push(null);finish();}
+}
+const fmt=ms=>{const s=Math.ceil(ms/1000);return Math.floor(s/60)+":"+pad(s%60);};
+function vQuiz(){
+  const q=Q.list[Q.i],n=Q.list.length,mock=Q.mode==="mock";
+  const grid=q.kind==="svg";
+  const letters="ABCD";
+  const opts=q.options.map((o,i)=>{
+    let cls="opt";
+    if(Q.struck[Q.i].has(i))cls+=" struck";
+    if(Q.locked&&!mock){if(i===q.answer)cls+=" right";else if(i===Q.picked)cls+=" wrong";}
+    else if(Q.picked===i)cls+=" sel";
+    return `<div style="position:relative"><button class="${cls}" data-opt="${i}" ${Q.locked&&!mock?"disabled":""} aria-label="Answer ${letters[i]}"><span class="let">${letters[i]}</span><span class="body">${o}</span></button>${!Q.locked?`<button class="x" data-x="${i}" title="Cross out" aria-label="Cross out answer ${letters[i]}" style="position:absolute;top:6px;right:6px">✕</button>`:""}</div>`;
+  }).join("");
+  let fb="";
+  if(Q.locked&&!mock){const ok=Q.picked===q.answer;fb=`<div class="fb ${ok?"ok":"no"} pop"><b>${ok?pick(["Brilliant!","Yes, that's it!","Super thinking!","Correct!"]):"Not quite."}</b> ${ok?"":`The answer is ${letters[q.answer]}. `}${q.explain}</div>`;}
+  const title=Q.mode==="mock"?"Mock test":Q.mode==="mission"?"Today's mission":SECS[Q.sec].name;
+  return `<div class="qhead"><button class="btn ghost" data-act="quit" style="padding:8px 14px">✕ Stop</button><div class="bar" aria-label="progress"><div style="width:${100*Q.i/n}%"></div></div><span class="pill">${Q.i+1}/${n}</span>${mock?`<span class="timer" id="timer">${fmt(Q.end-Date.now())}</span>`:""}</div>
+  <div style="font-family:'Baloo 2';font-weight:700;color:var(--ink-soft);margin-bottom:8px">${title}</div>
+  <section class="card qcard">
+    <span class="qsec ${SECS[q.sec].cls}">${SECS[q.sec].ico} ${SECS[q.sec].name}</span>
+    <p class="prompt">${q.prompt}</p>
+    ${q.visual||""}
+    <div class="opts ${grid?"grid":""}">${opts}</div>
+    ${fb}
+    <div class="qfoot"><span class="hint">${Q.locked?"":"Tip: tap ✕ to cross out answers you know are wrong."}</span>
+    ${mock?`<button class="btn" data-act="next" ${Q.picked===null?"disabled":""}>${Q.i===n-1?"Finish test":"Next"}</button>`
+      :Q.locked?`<button class="btn" data-act="next">${Q.i===n-1?"See results":"Next question"}</button>`
+      :`<button class="btn" data-act="check" ${Q.picked===null?"disabled":""}>Check answer</button>`}
+    </div>
+  </section>`;
+}
+function finish(){
+  clearInterval(timerInt);
+  const secs=Math.round((Date.now()-Q.start)/1000);
+  let c=0;const by={};
+  Q.list.forEach((q,i)=>{const ok=Q.ans[i]===q.answer;if(ok)c++;by[q.sec]=by[q.sec]||[0,0];by[q.sec][1]++;if(ok)by[q.sec][0]++;});
+  const before=BADGES.filter(b=>b.ok()).length;
+  S.sessions.push({at:Date.now(),mode:Q.mode,sec:Q.sec||null,c,t:Q.list.length,secs,by});
+  if(S.sessions.length>1000)S.sessions=S.sessions.slice(-1000);
+  save();
+  Q.result={c,t:Q.list.length,by,secs,newBadges:BADGES.filter(b=>b.ok()).length-before};
+  Q.done=true;render();window.scrollTo(0,0);
+}
+function vResult(){
+  const r=Q.result,pct=Math.round(100*r.c/r.t);
+  const msg=pct>=90?"Outstanding!":pct>=70?"Great job!":pct>=50?"Good effort — keep going!":"Every mistake teaches something. Let's review!";
+  const rows=Object.keys(r.by).map(k=>{const [c,t]=r.by[k];return `<div class="row"><span>${SECS[k].ico} ${SECS[k].name.split(" ")[0]}</span><div class="track"><div style="width:${100*c/t}%;background:var(--mint)"></div></div><b>${c}/${t}</b></div>`;}).join("");
+  const letters="ABCD";
+  const review=Q.list.map((q,i)=>{const ok=Q.ans[i]===q.answer;if(ok&&Q.mode!=="mock")return "";return `<div class="rev"><div class="q">${ok?"✅":"❌"} ${q.prompt}</div>${q.visual?`<div style="max-width:260px">${q.visual}</div>`:""}<div class="a">${Q.ans[i]==null?"Not answered. ":ok?"":`Picked ${letters[Q.ans[i]]}. `}Answer: <b>${letters[q.answer]}</b>${q.kind==="text"?` — ${q.options[q.answer]}`:""}. ${q.explain}</div></div>`;}).join("");
+  return `<section class="card" style="text-align:center">
+    <div class="big pop">${r.c}/${r.t}</div>
+    <h2 style="font-size:1.6rem;margin-top:6px">${msg}</h2>
+    <p style="color:var(--ink-soft);margin:.3rem 0 0">${Math.max(1,Math.round(r.secs/60))} minutes · +${r.c} ⭐${Q.mode==="mission"?" · Today's stone is lit ★":""}${r.newBadges>0?" · New badge unlocked!":""}</p>
+  </section>
+  <section class="card"><h3 style="font-size:1.2rem">By area</h3><div class="rows">${rows}</div></section>
+  ${review?`<section class="card"><h3 style="font-size:1.2rem;margin-bottom:6px">${Q.mode==="mock"?"Full review":"Let's look at the tricky ones"}</h3>${review}</section>`:""}
+  <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-act="home">Back to Today</button><button class="btn ghost" data-act="again">Another round</button></div>`;
+}
+
+function vLogin(){
+  if(!FB.ready)return `<section class="card" style="margin-top:20vh;text-align:center"><h2>Loading…</h2></section>`;
+  return `<div class="top"><div class="brand"><span class="dot">✦</span>Mawhiba Quest</div></div>
+  <section class="card" style="max-width:420px;margin:8vh auto 0">
+    <h1 style="font-size:1.8rem">Family sign in</h1>
+    <p style="color:var(--ink-soft);margin:.3rem 0 14px">Use the family email and password so progress syncs across your phones.</p>
+    <div style="display:grid;gap:10px" class="field">
+      <input id="em" type="email" autocomplete="username" placeholder="Family email" aria-label="Email">
+      <input id="pw" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password">
+      <button class="btn wide" data-act="signin">Sign in</button>
+      ${FB.authErr?`<p style="color:var(--berry);margin:0;font-size:.9rem">${esc(FB.authErr)}</p>`:""}
+    </div>
+  </section>`;
+}
+/* ---------------- Render & events ---------------- */
+function render(){
+  const app=$("#app");
+  if(SYNC_ON&&!FB.user){app.innerHTML=vLogin();document.querySelector("nav").style.display="none";return;}
+  if(Q)app.innerHTML=Q.done?vResult():vQuiz();
+  else app.innerHTML=view==="today"?vToday():view==="practice"?vPractice():view==="progress"?vProgress():vGuide();
+  renderNav();
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t)return;
+  if(t.dataset.go){go(t.dataset.go);return;}
+  if(t.dataset.sec){startQuiz("practice",t.dataset.sec);return;}
+  if(t.dataset.x!==undefined&&Q&&!Q.locked){const i=+t.dataset.x,s=Q.struck[Q.i];s.has(i)?s.delete(i):s.add(i);if(Q.picked===i)Q.picked=null;render();return;}
+  if(t.dataset.opt!==undefined&&Q&&!Q.locked){const i=+t.dataset.opt;if(Q.struck[Q.i].has(i))Q.struck[Q.i].delete(i);Q.picked=i;render();return;}
+  const a=t.dataset.act;if(!a)return;
+  if(a==="mission")startQuiz("mission");
+  else if(a==="mock")startQuiz("mock");
+  else if(a==="check"&&Q&&Q.picked!==null){Q.locked=true;render();}
+  else if(a==="next"&&Q){
+    Q.ans[Q.i]=Q.picked;
+    if(Q.i===Q.list.length-1){finish();return;}
+    Q.i++;Q.picked=null;Q.locked=false;render();window.scrollTo(0,0);
+  }
+  else if(a==="quit"){if(confirm("Stop this round? Answers so far won't be saved."))go(view);}
+  else if(a==="home")go("today");
+  else if(a==="again"){const m=Q.mode,s=Q.sec;startQuiz(m,s);}
+  else if(a==="savename"){S.name=($("#nm").value||"").trim().slice(0,24);S.nameAt=Date.now();save();toast("Name saved");render();}
+  else if(a==="signin"){
+    const em=($("#em").value||"").trim(),pw=$("#pw").value||"";
+    if(!em||!pw){FB.authErr="Enter the email and password.";render();return;}
+    t.disabled=true;FB.authErr="";
+    firebase.auth().signInWithEmailAndPassword(em,pw).catch(err=>{
+      FB.authErr=/invalid|wrong|not-found|credential/i.test(err.code||"")?"Email or password is not correct.":/network/i.test(err.code||"")?"No internet connection. Try again.":"Sign in failed: "+(err.code||"unknown error");
+      render();
+    });
+  }
+  else if(a==="signout"){if(confirm("Sign out on this device?"))firebase.auth().signOut();}
+  else if(a==="backup"){
+    const blob=new Blob([JSON.stringify(plain(S))],{type:"application/json"});
+    const u=URL.createObjectURL(blob);const l=document.createElement("a");
+    l.href=u;l.download="mawhiba-progress-"+todayKey()+".json";document.body.appendChild(l);l.click();l.remove();
+    setTimeout(()=>URL.revokeObjectURL(u),1000);toast("Backup downloaded");
+  }
+  else if(a==="restore"){const f=$("#rf");f.value="";f.click();}
+  else if(a==="reset"){if(confirm("Delete all progress, streaks and badges? This can't be undone.")){const n=S.name,na=S.nameAt;S=blank();S.name=n;S.nameAt=na;S.resetAt=Date.now();FB.lastRemote=null;save();toast("Progress reset");render();}}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="pw"){const b=document.querySelector('[data-act="signin"]');if(b)b.click();}});
+document.addEventListener("change",e=>{
+  if(e.target.id!=="rf"||!e.target.files[0])return;
+  const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||!Array.isArray(d.sessions))throw 0;
+    if(!confirm("Add the rounds from this backup to the current progress?"))return;
+    S=merge(S,normalize(d));save();toast("Backup restored");render();}catch(err){toast("That file isn't a Mawhiba Quest backup");}};
+  r.readAsText(e.target.files[0]);
+});
+render();
+initFirebase();
+})();
+</script>
+</body>
+</html>
