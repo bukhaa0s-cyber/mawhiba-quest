@@ -554,7 +554,7 @@ function initFirebase(){
       if(FB.unsub){FB.unsub();FB.unsub=null;}
       if(!u){FB.ref=null;render();return;}
       FB.ref=db.collection("families").doc(u.uid);
-      FB.unsub=FB.ref.onSnapshot(snap=>{
+      FB.unsub=FB.ref.onSnapshot({includeMetadataChanges:true},snap=>{
         const r=snap.exists?normalize(snap.data()):blank();
         FB.lastRemote=r;
         const before=sig(S);const m=merge(r,S);
