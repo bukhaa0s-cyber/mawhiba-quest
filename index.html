@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Lexend:wght@400;500;600&family=Bangers&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#1E2A4A; --ink-soft:#4A5677; --paper:#EEF5FC; --grid:#D6E6F5; --card:#FFFFFF;
@@ -168,6 +168,61 @@ nav button.on .i{transform:scale(1.15)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .pop{animation:pop .35s ease-out}
 @keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+
+/* ===== Theme: Block World ===== */
+html:root[data-skin="blocks"]{
+  --ink:#2B2118; --ink-soft:#5E4E3C; --paper:#86C8F2; --grid:rgba(255,255,255,.28); --card:#F1E6CF;
+  --sun:#6DBA3B; --sun-deep:#3F7A1F; --mint:#3FA34D; --mint-soft:#D6EFC4;
+  --berry:#C8402A; --berry-soft:#F6D8D0; --sky:#2F6FCB; --line:#2B2118; --shadow:0 4px 0 #2B2118;
+}
+[data-skin="blocks"] body{background-size:32px 32px;background-image:linear-gradient(var(--grid) 2px,transparent 2px),linear-gradient(90deg,var(--grid) 2px,transparent 2px),linear-gradient(transparent calc(100% - 90px),#5DA130 calc(100% - 90px),#5DA130 calc(100% - 74px),#7A5232 calc(100% - 74px));background-attachment:fixed}
+[data-skin="blocks"] h1,[data-skin="blocks"] h2,[data-skin="blocks"] h3,[data-skin="blocks"] .brand,[data-skin="blocks"] .count b,[data-skin="blocks"] .stat b,[data-skin="blocks"] .big,[data-skin="blocks"] .fb b{font-family:"Pixelify Sans","Baloo 2",monospace;letter-spacing:.02em}
+[data-skin="blocks"] .card,[data-skin="blocks"] .sec,[data-skin="blocks"] .stat,[data-skin="blocks"] .opt,[data-skin="blocks"] .pill,[data-skin="blocks"] .badge,[data-skin="blocks"] .fb{border-radius:0;border:3px solid var(--line);box-shadow:inset -4px -4px 0 rgba(0,0,0,.14),inset 4px 4px 0 rgba(255,255,255,.4)}
+[data-skin="blocks"] .card,[data-skin="blocks"] .sec{box-shadow:inset -5px -5px 0 rgba(0,0,0,.14),inset 5px 5px 0 rgba(255,255,255,.4),0 5px 0 #2B2118}
+[data-skin="blocks"] .mission{background:#4A4A4A;color:#F4F4F4;border-top:12px solid #5DA130}
+[data-skin="blocks"] .mission .tag{border-radius:0;background:#F5C842}
+[data-skin="blocks"] .btn{border-radius:0;border:3px solid #2B2118;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,.35);box-shadow:inset -4px -4px 0 rgba(0,0,0,.25),inset 4px 4px 0 rgba(255,255,255,.3)}
+[data-skin="blocks"] .btn.ghost{color:var(--ink);text-shadow:none}
+[data-skin="blocks"] .stone{border-radius:3px}
+[data-skin="blocks"] .stone.done{background:#F5C842;border:3px solid #9A7414;box-shadow:inset -3px -3px 0 rgba(0,0,0,.18),inset 3px 3px 0 rgba(255,255,255,.5)}
+[data-skin="blocks"] .stone.flag{border-radius:3px;background:#C8402A}
+[data-skin="blocks"] .brand .dot{border-radius:0;background:#5DA130;transform:none;box-shadow:inset 0 -10px 0 #7A5232}
+[data-skin="blocks"] .bar,[data-skin="blocks"] .track{border-radius:0}
+[data-skin="blocks"] .bar>div,[data-skin="blocks"] .track>div{border-radius:0}
+[data-skin="blocks"] .opt .let,[data-skin="blocks"] .sec .ico,[data-skin="blocks"] .qsec{border-radius:0}
+[data-skin="blocks"] nav{border-top:4px solid #5DA130}
+/* ===== Theme: Superhero ===== */
+html:root[data-skin="hero"]{
+  --ink:#111111; --ink-soft:#3A3A3A; --paper:#1B5FD9; --grid:transparent; --card:#FFFFFF;
+  --sun:#FFD23F; --sun-deep:#111111; --mint:#1FAA59; --mint-soft:#D6F5E3;
+  --berry:#E8282B; --berry-soft:#FDE0E0; --sky:#1B5FD9; --line:#111111; --shadow:5px 5px 0 #111;
+}
+[data-skin="hero"] body{background-image:radial-gradient(rgba(255,255,255,.18) 2px,transparent 2.5px);background-size:16px 16px}
+[data-skin="hero"] h1,[data-skin="hero"] h2,[data-skin="hero"] h3,[data-skin="hero"] .brand,[data-skin="hero"] .count b,[data-skin="hero"] .stat b,[data-skin="hero"] .big,[data-skin="hero"] .fb b{font-family:"Bangers","Baloo 2",sans-serif;letter-spacing:.04em;font-weight:400}
+[data-skin="hero"] .hello h1{font-size:clamp(2.4rem,7vw,3.4rem);text-shadow:3px 3px 0 #FFD23F}
+[data-skin="hero"] .card,[data-skin="hero"] .sec,[data-skin="hero"] .stat,[data-skin="hero"] .opt,[data-skin="hero"] .pill,[data-skin="hero"] .badge{border:3px solid #111;box-shadow:5px 5px 0 #111}
+[data-skin="hero"] .opt,[data-skin="hero"] .pill{box-shadow:3px 3px 0 #111}
+[data-skin="hero"] .mission{background:#E8282B;color:#fff;border-color:#111;transform:rotate(-.6deg)}
+[data-skin="hero"] .mission .tag{background:#FFD23F;border:2px solid #111}
+[data-skin="hero"] .mission h2{font-size:2rem;text-shadow:2px 2px 0 #111}
+[data-skin="hero"] .btn{border:3px solid #111;box-shadow:4px 4px 0 #111;font-weight:700}
+[data-skin="hero"] .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #111}
+[data-skin="hero"] .btn.mint{color:#fff}
+[data-skin="hero"] .fb{border:3px solid #111;box-shadow:4px 4px 0 #111}
+[data-skin="hero"] .fb b{font-size:1.5rem}
+[data-skin="hero"] .stone{border-style:solid;border-color:#111;background:#fff;color:#111}
+[data-skin="hero"] .stone.done{background:#FFD23F;border:3px solid #111}
+[data-skin="hero"] .stone.miss{opacity:.6;background:#cfd8ea}
+[data-skin="hero"] .stone.flag{background:#E8282B;border:3px solid #111}
+[data-skin="hero"] .brand .dot{background:#FFD23F;border:2px solid #111}
+[data-skin="hero"] .wrap>h1,[data-skin="hero"] .wrap>h2,[data-skin="hero"] .wrap>p,[data-skin="hero"] .brand,[data-skin="hero"] .guide>h1,[data-skin="hero"] .wrap>div>h1{color:#fff!important;text-shadow:3px 3px 0 #111}
+[data-skin="hero"] .qhead+div{color:#fff!important}
+[data-skin="hero"] nav{border-top:3px solid #111}
+/* Theme picker */
+.skins{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 4px}
+.skin{border:2px solid var(--line);background:var(--card);border-radius:14px;padding:10px 6px;font-weight:600;font-size:.88rem;display:flex;flex-direction:column;align-items:center;gap:4px}
+.skin i{font-style:normal;font-size:1.6rem}
+.skin.on{outline:3px solid var(--sky);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -204,6 +259,12 @@ const SECS = {
   science:{name:"Science & Mechanics",ico:"⚙️",cls:"c-science",desc:"Gears, balances, everyday science"}
 };
 const SEC_KEYS = Object.keys(SECS);
+const SKINS = {
+  classic:{name:"Classic",icon:"✦",emoji:"🧩",praise:["Brilliant!","Yes, that's it!","Super thinking!","Correct!"],oops:"Not quite."},
+  blocks:{name:"Block World",icon:"⛏",emoji:"🟩",praise:["Block placed!","Level up!","Gold block earned!","Mined it!"],oops:"Oops, wrong block."},
+  hero:{name:"Superhero",icon:"⚡",emoji:"🦸",praise:["POW! Correct!","BOOM! Super brain!","ZAP! You got it!","WHAM! Hero move!"],oops:"Oof! Try again, hero."}
+};
+const SKIN_KEYS = Object.keys(SKINS);
 const PHASES = [
   {n:1,name:"Picture patterns",focus:["flex","math"],range:"Oct 2 – Oct 14",tip:"Visual puzzles first. Ask him: what changes from one picture to the next?"},
   {n:2,name:"Numbers & science",focus:["math","science"],range:"Oct 15 – Oct 26",tip:"Number patterns, gears and balances. Try real toys: a seesaw, a flashlight for shadows."},
@@ -493,7 +554,7 @@ function buildSet(plan){ // plan: array of section keys
 
 /* ---------------- State & sync ---------------- */
 const LS="mawhiba-quest-v1";
-const blank=()=>rebuild({name:"",nameAt:0,resetAt:0,sessions:[],stats:{},days:{},updatedAt:0});
+const blank=()=>rebuild({name:"",nameAt:0,skin:"classic",skinAt:0,resetAt:0,sessions:[],stats:{},days:{},updatedAt:0});
 function rebuild(o){ // stats and days are always recomputed from sessions
   o.stats={};for(const k of SEC_KEYS)o.stats[k]={c:0,t:0};
   o.days={};
@@ -506,7 +567,7 @@ function rebuild(o){ // stats and days are always recomputed from sessions
 }
 function normalize(x){
   const b=blank();x=x||{};
-  b.name=typeof x.name==="string"?x.name:"";b.nameAt=+x.nameAt||0;b.resetAt=+x.resetAt||0;b.updatedAt=+x.updatedAt||0;
+  b.name=typeof x.name==="string"?x.name:"";b.nameAt=+x.nameAt||0;b.skin=SKINS[x.skin]?x.skin:"classic";b.skinAt=+x.skinAt||0;b.resetAt=+x.resetAt||0;b.updatedAt=+x.updatedAt||0;
   b.sessions=(Array.isArray(x.sessions)?x.sessions:[]).filter(s=>s&&typeof s.at==="number"&&s.at>b.resetAt).sort((a,c)=>a.at-c.at).slice(-1000);
   return rebuild(b);
 }
@@ -515,12 +576,12 @@ function merge(a,b){ // combine two copies without losing anyone's rounds
   o.resetAt=Math.max(a.resetAt||0,b.resetAt||0);
   const seen=new Map();for(const s of [...a.sessions,...b.sessions])if(s.at>o.resetAt)seen.set(s.at+"|"+s.mode+"|"+s.t,s);
   o.sessions=[...seen.values()].sort((x,y)=>x.at-y.at).slice(-1000);
-  const nb=(b.nameAt||0)>(a.nameAt||0)?b:a;o.name=nb.name;o.nameAt=nb.nameAt||0;
+  const nb=(b.nameAt||0)>(a.nameAt||0)?b:a;o.name=nb.name;o.nameAt=nb.nameAt||0;const sb=(b.skinAt||0)>(a.skinAt||0)?b:a;o.skin=sb.skin||"classic";o.skinAt=sb.skinAt||0;
   o.updatedAt=Math.max(a.updatedAt||0,b.updatedAt||0);
   return rebuild(o);
 }
-const sig=o=>o.sessions.length+"|"+(o.sessions.length?o.sessions[o.sessions.length-1].at:0)+"|"+o.resetAt+"|"+o.nameAt;
-const plain=o=>({name:o.name,nameAt:o.nameAt,resetAt:o.resetAt,sessions:o.sessions,updatedAt:o.updatedAt});
+const sig=o=>o.sessions.length+"|"+(o.sessions.length?o.sessions[o.sessions.length-1].at:0)+"|"+o.resetAt+"|"+o.nameAt+"|"+(o.skinAt||0);
+const plain=o=>({name:o.name,nameAt:o.nameAt,skin:o.skin||"classic",skinAt:o.skinAt||0,resetAt:o.resetAt,sessions:o.sessions,updatedAt:o.updatedAt});
 let S=blank();
 try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw));}catch(e){}
 
@@ -607,7 +668,7 @@ function toast(msg){const t=document.createElement("div");t.className="toast";t.
 
 function top(){
   const st=streak();
-  return `<div class="top"><div class="brand"><span class="dot">✦</span>Mawhiba Quest</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">${syncPill()}<span class="pill" title="Day streak">🔥 ${st}</span><span class="pill" title="Correct answers">⭐ ${totalCorrect()}</span></div></div>`;
+  return `<div class="top"><div class="brand"><span class="dot">${(SKINS[S.skin]||SKINS.classic).icon}</span>Mawhiba Quest</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button class="pill" data-act="cycleskin" title="Change theme" aria-label="Change theme">🎨</button>${syncPill()}<span class="pill" title="Day streak">🔥 ${st}</span><span class="pill" title="Correct answers">⭐ ${totalCorrect()}</span></div></div>`;
 }
 
 /* ---------------- Views ---------------- */
@@ -687,7 +748,8 @@ function vProgress(){
   <section class="card"><h3 style="font-size:1.2rem;margin-bottom:10px">Badges</h3><div class="badges">${BADGES.map(b=>`<div class="badge ${b.ok()?"":"off"}"><i>${b.i}</i>${b.n}</div>`).join("")}</div></section>
   <section class="card"><h3 style="font-size:1.2rem;margin-bottom:6px">Recent sessions</h3><div class="hist">${hist||'<p style="color:var(--ink-soft);margin:0">No sessions yet. Start today\'s mission to see results here.</p>'}</div></section>
   <section class="card"><h3 style="font-size:1.2rem;margin-bottom:10px">Settings</h3>
-    <div class="field"><input id="nm" placeholder="Your son's name" value="${esc(S.name)}" maxlength="24" aria-label="Child's name"><button class="btn ghost" data-act="savename">Save name</button></div>
+    <b style="display:block;margin-bottom:4px">Theme</b><div class="skins">${SKIN_KEYS.map(k=>`<button class="skin ${S.skin===k||(!S.skin&&k==="classic")?"on":""}" data-act="skin" data-v="${k}"><i>${SKINS[k].emoji}</i>${SKINS[k].name}</button>`).join("")}</div>
+    <b style="display:block;margin:14px 0 4px">Name</b><div class="field"><input id="nm" placeholder="Your son's name" value="${esc(S.name)}" maxlength="24" aria-label="Child's name"><button class="btn ghost" data-act="savename">Save name</button></div>
     <p style="margin:14px 0 8px;font-size:.88rem;color:var(--ink-soft)">${FB.user?`Signed in as ${esc(FB.user.email||"family")}. Progress syncs to every phone signed in with this account.`:SYNC_ON?"":"Sync is off, so progress saves on this device only. Add your Firebase settings to index.html to turn on sync."} Backups are an extra safety copy.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn ghost" data-act="backup">Download backup</button><button class="btn ghost" data-act="restore">Restore backup</button><input type="file" id="rf" accept=".json,application/json" hidden></div>
     <div style="margin-top:14px"><button class="btn ghost" data-act="reset" style="color:var(--berry)">Reset all progress</button>${FB.user?' <button class="btn ghost" data-act="signout">Sign out</button>':""}</div>
@@ -747,7 +809,7 @@ function vQuiz(){
     return `<div style="position:relative"><button class="${cls}" data-opt="${i}" ${Q.locked&&!mock?"disabled":""} aria-label="Answer ${letters[i]}"><span class="let">${letters[i]}</span><span class="body">${o}</span></button>${!Q.locked?`<button class="x" data-x="${i}" title="Cross out" aria-label="Cross out answer ${letters[i]}" style="position:absolute;top:6px;right:6px">✕</button>`:""}</div>`;
   }).join("");
   let fb="";
-  if(Q.locked&&!mock){const ok=Q.picked===q.answer;fb=`<div class="fb ${ok?"ok":"no"} pop"><b>${ok?pick(["Brilliant!","Yes, that's it!","Super thinking!","Correct!"]):"Not quite."}</b> ${ok?"":`The answer is ${letters[q.answer]}. `}${q.explain}</div>`;}
+  if(Q.locked&&!mock){const ok=Q.picked===q.answer;fb=`<div class="fb ${ok?"ok":"no"} pop"><b>${ok?pick((SKINS[S.skin]||SKINS.classic).praise):(SKINS[S.skin]||SKINS.classic).oops}</b> ${ok?"":`The answer is ${letters[q.answer]}. `}${q.explain}</div>`;}
   const title=Q.mode==="mock"?"Mock test":Q.mode==="mission"?"Today's mission":SECS[Q.sec].name;
   return `<div class="qhead"><button class="btn ghost" data-act="quit" style="padding:8px 14px">✕ Stop</button><div class="bar" aria-label="progress"><div style="width:${100*Q.i/n}%"></div></div><span class="pill">${Q.i+1}/${n}</span>${mock?`<span class="timer" id="timer">${fmt(Q.end-Date.now())}</span>`:""}</div>
   <div style="font-family:'Baloo 2';font-weight:700;color:var(--ink-soft);margin-bottom:8px">${title}</div>
@@ -808,6 +870,7 @@ function vLogin(){
 }
 /* ---------------- Render & events ---------------- */
 function render(){
+  document.documentElement.setAttribute("data-skin",SKINS[S.skin]?S.skin:"classic");
   const app=$("#app");
   if(SYNC_ON&&!FB.user){app.innerHTML=vLogin();document.querySelector("nav").style.display="none";return;}
   if(Q)app.innerHTML=Q.done?vResult():vQuiz();
@@ -832,6 +895,10 @@ document.addEventListener("click",e=>{
   else if(a==="quit"){if(confirm("Stop this round? Answers so far won't be saved."))go(view);}
   else if(a==="home")go("today");
   else if(a==="again"){const m=Q.mode,s=Q.sec;startQuiz(m,s);}
+  else if(a==="skin"||a==="cycleskin"){
+    const v=a==="skin"?t.dataset.v:SKIN_KEYS[(SKIN_KEYS.indexOf(S.skin||"classic")+1)%SKIN_KEYS.length];
+    if(SKINS[v]){S.skin=v;S.skinAt=Date.now();save();render();toast(SKINS[v].emoji+" "+SKINS[v].name+" theme");}
+  }
   else if(a==="savename"){S.name=($("#nm").value||"").trim().slice(0,24);S.nameAt=Date.now();save();toast("Name saved");render();}
   else if(a==="signin"){
     const em=($("#em").value||"").trim(),pw=$("#pw").value||"";
@@ -850,7 +917,7 @@ document.addEventListener("click",e=>{
     setTimeout(()=>URL.revokeObjectURL(u),1000);toast("Backup downloaded");
   }
   else if(a==="restore"){const f=$("#rf");f.value="";f.click();}
-  else if(a==="reset"){if(confirm("Delete all progress, streaks and badges? This can't be undone.")){const n=S.name,na=S.nameAt;S=blank();S.name=n;S.nameAt=na;S.resetAt=Date.now();FB.lastRemote=null;save();toast("Progress reset");render();}}
+  else if(a==="reset"){if(confirm("Delete all progress, streaks and badges? This can't be undone.")){const n=S.name,na=S.nameAt,sk=S.skin,ska=S.skinAt;S=blank();S.name=n;S.nameAt=na;S.skin=sk;S.skinAt=ska;S.resetAt=Date.now();FB.lastRemote=null;save();toast("Progress reset");render();}}
 });
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="pw"){const b=document.querySelector('[data-act="signin"]');if(b)b.click();}});
 document.addEventListener("change",e=>{
