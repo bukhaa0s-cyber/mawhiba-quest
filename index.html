@@ -150,6 +150,12 @@ h2.sh{font-size:1.4rem;margin:22px 0 10px}
 .phase.now .n{background:var(--berry);color:#fff}
 .field{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .field input{font:inherit;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);flex:1;min-width:160px}
+.lvtag{margin-top:6px;font-size:.76rem;font-weight:600;display:inline-block;background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:2px 9px}
+.qnav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.qn{width:36px;height:36px;border-radius:10px;border:2px solid var(--line);background:var(--card);font-weight:700;font-size:.9rem;position:relative}
+.qn.ansd{background:var(--mint-soft);border-color:var(--mint)}
+.qn.cur{outline:3px solid var(--sky);outline-offset:2px}
+.qn.flag::after{content:"★";position:absolute;top:-7px;right:-4px;font-size:.78rem;color:var(--berry)}
 /* Nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
 nav .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
@@ -293,14 +299,15 @@ function nearNums(ans, cands){
 }
 
 /* ---------------- SVG helpers ---------------- */
-function shp(t,c,cx,cy,r){
+function shp(t,c,cx,cy,r,x2){
+  x2=x2||"";
   switch(t){
-    case "circle": return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}"/>`;
-    case "square": {const s=r*1.6;return `<rect x="${cx-s/2}" y="${cy-s/2}" width="${s}" height="${s}" rx="3" fill="${c}"/>`;}
-    case "triangle": return `<polygon points="${cx},${cy-r} ${cx+r*.95},${cy+r*.75} ${cx-r*.95},${cy+r*.75}" fill="${c}"/>`;
-    case "diamond": return `<polygon points="${cx},${cy-r} ${cx+r*.85},${cy} ${cx},${cy+r} ${cx-r*.85},${cy}" fill="${c}"/>`;
-    case "star": {let p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.45:r;p.push((cx+rr*Math.cos(a)).toFixed(1)+","+(cy+rr*Math.sin(a)).toFixed(1));}return `<polygon points="${p.join(" ")}" fill="${c}"/>`;}
-    case "hexagon": {let p=[];for(let i=0;i<6;i++){const a=i*Math.PI/3;p.push((cx+r*Math.cos(a)).toFixed(1)+","+(cy+r*Math.sin(a)).toFixed(1));}return `<polygon points="${p.join(" ")}" fill="${c}"/>`;}
+    case "circle": return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}" ${x2}/>`;
+    case "square": {const s=r*1.6;return `<rect x="${cx-s/2}" y="${cy-s/2}" width="${s}" height="${s}" rx="3" fill="${c}" ${x2}/>`;}
+    case "triangle": return `<polygon points="${cx},${cy-r} ${cx+r*.95},${cy+r*.75} ${cx-r*.95},${cy+r*.75}" fill="${c}" ${x2}/>`;
+    case "diamond": return `<polygon points="${cx},${cy-r} ${cx+r*.85},${cy} ${cx},${cy+r} ${cx-r*.85},${cy}" fill="${c}" ${x2}/>`;
+    case "star": {let p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.45:r;p.push((cx+rr*Math.cos(a)).toFixed(1)+","+(cy+rr*Math.sin(a)).toFixed(1));}return `<polygon points="${p.join(" ")}" fill="${c}" ${x2}/>`;}
+    case "hexagon": {let p=[];for(let i=0;i<6;i++){const a=i*Math.PI/3;p.push((cx+r*Math.cos(a)).toFixed(1)+","+(cy+r*Math.sin(a)).toFixed(1));}return `<polygon points="${p.join(" ")}" fill="${c}" ${x2}/>`;}
   }
 }
 const svg = (w,h,inner,label,cls="vis",maxw) => `<svg viewBox="0 0 ${w} ${h}" class="${cls}" role="img" aria-label="${esc(label||"picture")}" ${maxw?`style="max-width:${maxw}px"`:""} xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
@@ -323,8 +330,8 @@ function make(sec,prompt,visual,correct,wrongs,explain,kind="text"){
 }
 
 /* ---------- Math & spatial ---------- */
-function genSeq(){
-  const t=rnd(0,5); let terms=[],ans,why;
+function genSeq(lv){
+  const t=lv>=3?pick([2,3,4,4,1]):lv===2?pick([0,1,2,3,5]):pick([0,0,1,5]); let terms=[],ans,why;
   if(t===0){const s=rnd(1,9),d=rnd(2,6);terms=[0,1,2,3].map(i=>s+i*d);ans=s+4*d;why=`Each number goes up by ${d}.`;}
   else if(t===1){const s=rnd(1,4);terms=[s,s*2,s*4,s*8];ans=s*16;why="Each number is doubled (×2).";}
   else if(t===2){const s=rnd(1,6);terms=[s,s+1,s+3,s+6];ans=s+10;why="Add 1, then 2, then 3… so next add 4.";}
@@ -334,15 +341,15 @@ function genSeq(){
   const diff=terms[3]-terms[2];
   return make("math",`What number comes next?<br><span style="font-family:'Baloo 2';font-size:1.7rem;letter-spacing:.04em">${terms.join(" → ")} → ?</span>`,null,String(ans),nearNums(ans,[ans+1,ans-1,ans+2,ans-2,terms[3]+diff,ans+diff]),why);
 }
-function genWord(){
-  const n=pick(NAMES),t=rnd(0,4);
+function genWord(lv){
+  const n=pick(NAMES),t=lv>=3?pick([1,4,0]):lv===2?rnd(0,4):pick([0,2,3]);
   if(t===0){const a=rnd(2,5),b=rnd(2,6);return make("math",`${n} has ${a} bags. Each bag has ${b} apples. How many apples does ${n} have?`,null,String(a*b),nearNums(a*b,[a+b,a*b+b,a*b-a,a*b+1]),`${a} bags × ${b} apples = ${a*b}.`);}
   if(t===1){const a=rnd(8,15),b=rnd(2,6),c=rnd(2,6);const ans=a-b+c;return make("math",`${n} had ${a} stickers. He gave ${b} to a friend, then got ${c} more. How many stickers now?`,null,String(ans),nearNums(ans,[a+b+c,a-b-c,a-b,ans+1]),`${a} − ${b} = ${a-b}, then + ${c} = ${ans}.`);}
   if(t===2){const k=rnd(2,4);return make("math",`A spider has 8 legs. How many legs do ${k} spiders have?`,null,String(8*k),nearNums(8*k,[8+k,8*k-8,8*k+8,6*k]),`${k} × 8 = ${8*k}.`);}
   if(t===3){const a=rnd(3,9)*2;return make("math",`${n} cut a pizza into ${a} slices and ate half of them. How many slices are left?`,null,String(a/2),nearNums(a/2,[a,a-2,a/2+1,a/2-1]),`Half of ${a} is ${a/2}, so ${a/2} slices are left.`);}
   const p=rnd(3,6),q=rnd(2,4);const ans=p*q;return make("math",`Chairs are in ${p} rows with ${q} chairs in each row. How many chairs are there?`,null,String(ans),nearNums(ans,[p+q,ans+p,ans-q,ans+1]),`${p} rows × ${q} chairs = ${ans}.`);
 }
-function genRotate(){
+function genRotate(lv){
   const start=pick([0,90,180,270]),t=rnd(0,3);
   let end,text,why;
   if(t===0){end=(start+90)%360;text="turns a quarter turn clockwise (like a clock's hands)";why="A quarter turn clockwise moves the arrow one step to the right around the circle.";}
@@ -385,7 +392,7 @@ function genOdd(){
   const wrongs=items.slice(1).map(it=>optSvg(shp(it.s,it.c,40,40,26),"shape"));
   return make("flex","Which one does not belong with the others?",null,correct,wrongs,why,"svg");
 }
-function genGrowth(){
+function genGrowth(lv){
   const t=rnd(0,2);let seq,ans,why;
   if(t===0){seq=[1,2,3];ans=4;why="One more dot each time.";}
   else if(t===1){seq=[1,3,5];ans=7;why="Two more dots each time.";}
@@ -454,11 +461,11 @@ const WORDMEAN=[
 ["Which word means the same as <b>gift</b>?","present",["party","box","toy"]],
 ["Which word means the same as <b>close</b> (a door)?","shut",["open","lock","near"]]
 ];
-function genWords(){
+function genWords(lv){
   if(Math.random()<.5){const o=pick(ODDWORDS);return make("verbal","Which word does not belong?",null,o[1],o[0],o[2]);}
   const w=pick(WORDMEAN);return make("verbal",w[0],null,w[1],w[2],`The answer is "${w[1]}".`);
 }
-function genOrder(){
+function genOrder(lv){
   const [a,b,c]=shuffle(NAMES).slice(0,3);
   const rel=pick([["taller","shortest","tallest"],["faster","slowest","fastest"],["older","youngest","oldest"]]);
   const askLow=Math.random()<.5;
@@ -478,12 +485,13 @@ const STORIES=[
 ["Hamad left a glass of water in the freezer all night. What will he find in the morning?","The water turned to ice",["The glass is empty","The water is hot","The water turned to juice"],"Freezers make water freeze into ice."],
 ["Noura's pencil got shorter and shorter all week. What was she doing?","Sharpening and using it",["Keeping it in a box","Watering it","Painting it"],"Pencils get shorter when we sharpen and use them."]
 ];
-function genStory(){const s=pick(STORIES);return make("verbal",s[0],null,s[1],s[2],s[3]);}
+function genStory(lv){const s=pick(STORIES);return make("verbal",s[0],null,s[1],s[2],s[3]);}
 /* ---------- Science & mechanics ---------- */
 function gear(cx,cy,r,label,col){
   return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="10" stroke-dasharray="7 6"/><circle cx="${cx}" cy="${cy}" r="${r-7}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-width="3"/><text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="26" font-family="Baloo 2" font-weight="800" fill="${INK}">${label}</text>`;
 }
-function genGears(){
+function genGears(lv){
+  if(lv>=3&&Math.random()<.5)return genGearTeeth(lv);
   const n=rnd(2,5),cw=Math.random()<.5,r=30,step=64,w=n*step+20;
   let inner="";const cols=["#2F7FD8","#F2A900","#2BA57F","#7B5CD6","#E2457A"];
   for(let i=0;i<n;i++)inner+=gear(42+i*step,70,r,"ABCDE"[i],cols[i]);
@@ -497,8 +505,8 @@ function genGears(){
 function seesaw(tilt,left,right){
   return `<polygon points="160,150 140,185 180,185" fill="${INK}" fill-opacity=".6"/><g transform="rotate(${tilt} 160 150)"><rect x="30" y="144" width="260" height="10" rx="5" fill="${INK}"/>${left}${right}</g>`;
 }
-function genBalance(){
-  const t=rnd(0,2);
+function genBalance(lv){
+  const t=lv>=3?pick([1,2,2]):lv===2?rnd(0,2):pick([0,0,1]);
   if(t===0){
     const items=shuffle([["box","square","#F2A900"],["ball","circle","#2F7FD8"],["star","star","#E2457A"],["cup","diamond","#2BA57F"]]).slice(0,2);
     const k=rnd(0,2); const tilt=k===0?-12:k===1?12:0;
@@ -535,22 +543,426 @@ const FACTS=[
 ["Which is easier to push across the floor?","An empty box",["A box full of books","A box full of stones","A box full of water"],"Lighter things need less force to move."],
 ["Why can we see the Moon at night?","It reflects light from the Sun",["It makes its own fire","It is a light bulb","Stars paint it"],"The Moon has no light of its own; it bounces sunlight to us."]
 ];
-function genFact(){const f=pick(FACTS);return make("science",f[0],null,f[1],f[2],f[3]);}
+function genFact(lv){const f=pick(FACTS);return make("science",f[0],null,f[1],f[2],f[3]);}
+
+/* ---------- Extra SVG helpers ---------- */
+let UID=0;
+function pat(kind,col){
+  if(kind==="solid")return {fill:col,defs:""};
+  if(kind==="empty")return {fill:"none",defs:""};
+  const id="p"+(++UID);let inner;
+  if(kind==="striped")inner=`<path d="M-1,9 l10,-10 M-1,1 l2,-2 M7,11 l4,-4" stroke="${col}" stroke-width="2.6"/>`;
+  else if(kind==="dotted")inner=`<circle cx="4" cy="4" r="1.9" fill="${col}"/>`;
+  else inner=`<path d="M0,0 l8,8 M8,0 l-8,8" stroke="${col}" stroke-width="1.5"/>`;
+  return {fill:`url(#${id})`,defs:`<defs><pattern id="${id}" width="8" height="8" patternUnits="userSpaceOnUse">${inner}</pattern></defs>`};
+}
+const FILLS=["solid","empty","striped","dotted","hatched"];
+function shapeF(t,cx,cy,r,col,kind){
+  kind=kind||"solid";const p=pat(kind,col);
+  const extra=kind==="solid"?"":`stroke="${col}" stroke-width="2.6"`;
+  return p.defs+shp(t,p.fill,cx,cy,r,extra);
+}
+function shapeR(t,cx,cy,r,col,ang){
+  return `<g transform="rotate(${ang} ${cx} ${cy})">${shp(t,col,cx,cy,r)}<circle cx="${cx}" cy="${cy-r*0.6}" r="${Math.max(3,r*0.2)}" fill="#fff" stroke="${col}" stroke-width="2"/></g>`;
+}
+const qmark=(x,y,s)=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" font-family="Baloo 2" font-weight="800" fill="#E2457A">?</text>`;
+const box=(x,y,w,h,dash)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="none" stroke="${dash?"#E2457A":INK}" stroke-opacity="${dash?1:.3}" stroke-width="2"${dash?' stroke-dasharray="6 5"':""}/>`;
+
+/* ================= MATH & SPATIAL ================= */
+function genFold(lv){
+  const folds=lv>=3?rnd(2,2):lv===2?rnd(1,2):1;
+  const holes=lv>=3?rnd(1,2):1;
+  const ans=holes*Math.pow(2,folds);
+  const S=86,g=18;
+  let inner=`<rect x="${g}" y="${g}" width="${S}" height="${S}" rx="4" fill="#fff" stroke="${INK}" stroke-width="2.5"/>`;
+  inner+=`<text x="${g+S/2}" y="${g+S+22}" text-anchor="middle" font-size="13" fill="${INK}">paper</text>`;
+  let x=g+S+34;
+  for(let f=0;f<folds;f++){
+    inner+=`<path d="M${x-22},${g+S/2} l16,0 m-5,-5 l5,5 -5,5" stroke="#2F7FD8" stroke-width="3" fill="none"/>`;
+    const w=f===0?S/2:S/2,h=f===0?S:S/2;
+    inner+=`<rect x="${x}" y="${g+(f===0?0:S/4)}" width="${w}" height="${h}" rx="4" fill="#DCEBFB" stroke="${INK}" stroke-width="2.5"/>`;
+    if(f===folds-1){
+      for(let i=0;i<holes;i++) inner+=`<circle cx="${x+w/2+(i?14:-14)*(holes>1?1:0)}" cy="${g+(f===0?0:S/4)+h/2}" r="7" fill="#1E2A4A"/>`;
+    }
+    inner+=`<text x="${x+w/2}" y="${g+S+22}" text-anchor="middle" font-size="13" fill="${INK}">fold ${f+1}</text>`;
+    x+=w+34;
+  }
+  return make("math",`A square paper is folded ${folds===1?"once":"twice"}, then ${holes===1?"a hole is punched":holes+" holes are punched"} through it. How many holes are there when you open it?`,
+    svg(x+6,g+S+34,inner,"paper folding","vis",Math.min(460,x+6)),String(ans),nearNums(ans,[holes,ans/2,ans*2,ans+1,ans-1]),
+    `Each fold doubles the layers. ${folds} fold${folds>1?"s":""} = ${Math.pow(2,folds)} layers, and each punch goes through them all: ${holes} × ${Math.pow(2,folds)} = ${ans}.`);
+}
+function genBlocks(lv){
+  const rows=lv>=3?rnd(4,5):rnd(3,4);
+  const cols=[];let tot=0;
+  for(let i=0;i<rows;i++){const n=rows-i;cols.push(n);tot+=n;}
+  const c=26,W=rows*c+20,H=rows*c+20;
+  let inner="";
+  for(let r=0;r<rows;r++)for(let i=0;i<cols[r];i++){
+    const x=10+i*c,y=H-10-(r+1)*c;
+    inner+=`<rect x="${x}" y="${y}" width="${c-2}" height="${c-2}" rx="3" fill="#F2A900" stroke="${INK}" stroke-width="2"/>`;
+  }
+  if(lv>=3){
+    const need=rows*rows-tot;
+    return make("math","How many more blocks are needed to fill the whole square?",svg(W,H,inner,"blocks","vis",Math.min(260,W*1.6)),
+      String(need),nearNums(need,[tot,rows*rows,need+rows,need-1,need+1]),
+      `A full ${rows}×${rows} square needs ${rows*rows} blocks. There are ${tot} now, so ${rows*rows} − ${tot} = ${need}.`);
+  }
+  return make("math","How many blocks are in this tower?",svg(W,H,inner,"blocks","vis",Math.min(240,W*1.6)),
+    String(tot),nearNums(tot,[tot+rows,tot-rows,tot+1,tot-1,rows*rows]),
+    `Count each row: ${cols.join(" + ")} = ${tot}.`);
+}
+function genShapeEq(lv){
+  const a=rnd(2,6),b=rnd(2,8);
+  const n=lv>=2?3:2;
+  const sa=pick(["triangle","star"]),sb=pick(["square","circle","hexagon"]);
+  const sum=a*n;
+  const C="#E2457A",C2="#2F7FD8";
+  let inner="";let x=28;
+  for(let i=0;i<n;i++){inner+=shp(sa,C,x,34,20);x+=46;if(i<n-1){inner+=`<text x="${x-23}" y="${44}" text-anchor="middle" font-size="26" fill="${INK}">+</text>`;}}
+  inner+=`<text x="${x-18}" y="44" text-anchor="middle" font-size="26" fill="${INK}">=</text>`;
+  inner+=`<text x="${x+16}" y="45" text-anchor="middle" font-size="30" font-family="Baloo 2" font-weight="800" fill="${INK}">${sum}</text>`;
+  inner+=shp(sa,C,28,100,20);
+  inner+=`<text x="60" y="110" text-anchor="middle" font-size="26" fill="${INK}">+</text>`;
+  inner+=shp(sb,C2,92,100,20);
+  inner+=`<text x="124" y="110" text-anchor="middle" font-size="26" fill="${INK}">=</text>`;
+  inner+=`<text x="158" y="111" text-anchor="middle" font-size="30" font-family="Baloo 2" font-weight="800" fill="${INK}">${a+b}</text>`;
+  inner+=shp(sb,C2,28,166,20);
+  inner+=`<text x="60" y="176" text-anchor="middle" font-size="26" fill="${INK}">=</text>`;
+  inner+=qmark(92,180,34);
+  return make("math","What number does the blue shape stand for?",svg(Math.max(200,x+40),200,inner,"shape equation","vis",230),
+    String(b),nearNums(b,[a,a+b,sum,b+1,b-1]),
+    `${n} of the pink shape make ${sum}, so one pink = ${a}. Then ${a} + blue = ${a+b}, so blue = ${b}.`);
+}
+function genWheel(lv){
+  const n=6,pairSum=rnd(10,20);
+  const vals=[];for(let i=0;i<3;i++){const x=rnd(2,pairSum-2);vals.push(x);vals.push(pairSum-x);}
+  const order=[vals[0],vals[2],vals[4],vals[1],vals[3],vals[5]];
+  const miss=rnd(0,5),ans=order[miss];
+  const R=72,cx=86,cy=86;
+  let inner=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${INK}" stroke-width="2.5"/>`;
+  for(let i=0;i<n;i++){const a=i*Math.PI/3;inner+=`<line x1="${cx}" y1="${cy}" x2="${(cx+R*Math.cos(a)).toFixed(1)}" y2="${(cy+R*Math.sin(a)).toFixed(1)}" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>`;}
+  for(let i=0;i<n;i++){
+    const a=i*Math.PI/3+Math.PI/6,px=cx+R*0.62*Math.cos(a),py=cy+R*0.62*Math.sin(a)+8;
+    inner+=i===miss?qmark(px,py,28):`<text x="${px}" y="${py}" text-anchor="middle" font-size="22" font-family="Baloo 2" font-weight="700" fill="#2F7FD8">${order[i]}</text>`;
+  }
+  return make("math",`In this wheel, each number and the one straight opposite it always add up to the same total. What is the missing number?`,
+    svg(172,180,inner,"number wheel","vis",200),String(ans),nearNums(ans,[pairSum,pairSum-ans,ans+1,ans-1,ans+2]),
+    `Opposite pairs each add to ${pairSum}. The opposite number is ${order[(miss+3)%6]}, so ${pairSum} − ${order[(miss+3)%6]} = ${ans}.`);
+}
+function genDice(lv){
+  const pips={1:[[0,0]],2:[[-1,-1],[1,1]],3:[[-1,-1],[0,0],[1,1]],4:[[-1,-1],[1,-1],[-1,1],[1,1]],5:[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],6:[[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]};
+  const die=(v,x,y,s)=>{let o=`<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="${s*0.18}" fill="#fff" stroke="${INK}" stroke-width="2.5"/>`;
+    for(const[a,b]of pips[v])o+=`<circle cx="${x+s/2+a*s*0.26}" cy="${y+s/2+b*s*0.26}" r="${s*0.09}" fill="#1E2A4A"/>`;return o;};
+  const top=rnd(1,6),ans=7-top;
+  if(lv>=3){
+    const t2=rnd(1,6);const total=(7-top)+(7-t2);
+    return make("math","On a dice, the numbers on opposite faces always add up to 7. These two dice show their top faces. What do the two bottom faces add up to?",
+      svg(150,80,die(top,8,8,64)+die(t2,82,8,64),"two dice","vis",170),String(total),nearNums(total,[top+t2,7,total+1,total-1,14-total]),
+      `Bottom faces are 7 − ${top} = ${7-top} and 7 − ${t2} = ${7-t2}. Together ${total}.`);
+  }
+  return make("math","On a dice, the numbers on opposite faces always add up to 7. If the top face shows this, what is on the bottom face?",
+    svg(80,80,die(top,8,8,64),"a dice","vis",110),String(ans),nearNums(ans,[top,7,ans+1,ans-1,6]),
+    `7 − ${top} = ${ans}.`);
+}
+function genGrid(lv){
+  const N=4,c=42,pad=26;
+  const sx=rnd(0,1),sy=rnd(2,3);
+  const steps=lv>=3?3:2;
+  const moves=[];let x=sx,y=sy;
+  for(let i=0;i<steps;i++){
+    const opts=[];
+    if(x<N-1)opts.push(["right",1,0]);if(x>0)opts.push(["left",-1,0]);
+    if(y>0)opts.push(["up",0,-1]);if(y<N-1)opts.push(["down",0,1]);
+    const m=pick(opts);const k=rnd(1,2);
+    let nx=x+m[1]*k,ny=y+m[2]*k;
+    if(nx<0||nx>N-1||ny<0||ny>N-1){nx=x+m[1];ny=y+m[2];moves.push("1 square "+m[0]);}
+    else moves.push(k+" square"+(k>1?"s":"")+" "+m[0]);
+    x=nx;y=ny;
+  }
+  const L="ABCD";
+  let inner="";
+  for(let r=0;r<N;r++)for(let col=0;col<N;col++)
+    inner+=`<rect x="${pad+col*c}" y="${pad+r*c}" width="${c}" height="${c}" fill="none" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>`;
+  for(let i=0;i<N;i++){
+    inner+=`<text x="${pad+i*c+c/2}" y="${pad-8}" text-anchor="middle" font-size="15" font-weight="600" fill="${INK}">${L[i]}</text>`;
+    inner+=`<text x="${pad-10}" y="${pad+i*c+c/2+5}" text-anchor="middle" font-size="15" font-weight="600" fill="${INK}">${i+1}</text>`;
+  }
+  inner+=`<circle cx="${pad+sx*c+c/2}" cy="${pad+sy*c+c/2}" r="12" fill="#E2457A"/>`;
+  const ans=L[x]+(y+1);
+  const all=[];for(let r=0;r<N;r++)for(let col=0;col<N;col++){const s=L[col]+(r+1);if(s!==ans)all.push(s);}
+  return make("math",`The pink dot starts where you see it. It moves ${moves.join(", then ")}. Which square does it land on?`,
+    svg(pad*2+N*c,pad*2+N*c-10,inner,"grid","vis",230),ans,shuffle(all).slice(0,3),
+    `Follow the moves one at a time from the dot. It ends at ${ans}.`);
+}
+function genMirror(lv){
+  const flag=(ang,flip)=>`<g transform="translate(40,40) scale(${flip?-1:1},1) rotate(${ang})"><rect x="-4" y="-26" width="8" height="52" rx="2" fill="#2F7FD8"/><polygon points="4,-26 30,-16 4,-6" fill="#E2457A"/></g>`;
+  const ang=pick([0,90,180,270]);
+  const correct=optSvg(flag(ang,true),"mirror");
+  const wrongs=[optSvg(flag(ang,false),"shape"),optSvg(flag((ang+90)%360,true),"shape"),optSvg(flag((ang+180)%360,true),"shape")];
+  return make("math","Which picture shows this shape seen in a mirror held beside it?",svg(80,80,flag(ang,false),"flag shape","vis",110),
+    correct,wrongs,"A mirror flips left and right, but keeps up and down the same.","svg");
+}
+
+/* ================= MENTAL FLEXIBILITY ================= */
+function genMatrix2(lv){
+  const sh=shuffle(SHAPES).slice(0,3),cols=shuffle(COLORS).slice(0,3);
+  const fills=shuffle(FILLS.filter(f=>f!=="hatched")).slice(0,3);
+  const useFill=lv>=2;
+  let inner="";const cell=80;
+  const F=(r,c)=>useFill?fills[(r+c)%3]:"solid";
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++){
+    const x=c*cell+40,y=r*cell+40;
+    inner+=`<rect x="${c*cell+4}" y="${r*cell+4}" width="${cell-8}" height="${cell-8}" rx="10" fill="none" stroke="${INK}" stroke-opacity=".25" stroke-width="2"/>`;
+    if(r===2&&c===2){inner+=qmark(x,y+12,34);continue;}
+    inner+=shapeF(sh[(r+c)%3],x,y,24,cols[r][0],F(r,c));
+  }
+  const aS=sh[1],aC=cols[2][0],aF=F(2,2);
+  const correct=optSvg(shapeF(aS,40,40,26,aC,aF),"answer");
+  const wrongs=[optSvg(shapeF(sh[0],40,40,26,aC,aF),"shape"),optSvg(shapeF(aS,40,40,26,cols[0][0],aF),"shape"),
+    optSvg(shapeF(aS,40,40,26,aC,useFill?fills[(1)%3]:"solid"),"shape")];
+  return make("flex","Which picture completes the grid?",svg(240,240,inner,"three by three grid","vis",250),correct,wrongs,
+    `Each row uses one colour (this row is ${cols[2][1]}), and the shapes shift along one step in every row${useFill?", and the way they are shaded shifts too":""}.`,"svg");
+}
+function genRotMatrix(lv){
+  const sh=pick(["square","triangle","hexagon","star"]),col=pick(COLORS)[0];
+  const step=pick([45,90,90,135]);
+  let inner="";const cell=80;
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++){
+    const x=c*cell+40,y=r*cell+40,i=r*3+c;
+    inner+=`<rect x="${c*cell+4}" y="${r*cell+4}" width="${cell-8}" height="${cell-8}" rx="10" fill="none" stroke="${INK}" stroke-opacity=".25" stroke-width="2"/>`;
+    if(i===8){inner+=qmark(x,y+12,34);continue;}
+    inner+=shapeR(sh,x,y,24,col,i*step);
+  }
+  const a=(8*step)%360;
+  const correct=optSvg(shapeR(sh,40,40,26,col,a),"answer");
+  const wrongs=[optSvg(shapeR(sh,40,40,26,col,(a+step)%360),"shape"),optSvg(shapeR(sh,40,40,26,col,(a-step+360)%360),"shape"),optSvg(shapeR(sh,40,40,26,col,(a+180)%360),"shape")];
+  return make("flex","The shape turns the same amount each step. Which picture comes next?",svg(240,240,inner,"rotating shapes","vis",250),
+    correct,wrongs,`Watch the small white dot: it turns ${step}° each time, going along the rows.`,"svg");
+}
+function genPicAnalogy(lv){
+  const s1=pick(SHAPES);let s2=pick(SHAPES.filter(s=>s!==s1));
+  const col=pick(COLORS)[0],col2=pick(COLORS.filter(c=>c[0]!==col))[0];
+  const rules=[
+    {t:"size",a:(s,c,x,y)=>shapeF(s,x,y,26,c,"solid"),b:(s,c,x,y)=>shapeF(s,x,y,14,c,"solid"),why:"Each shape becomes much smaller."},
+    {t:"fill",a:(s,c,x,y)=>shapeF(s,x,y,26,c,"solid"),b:(s,c,x,y)=>shapeF(s,x,y,26,c,"empty"),why:"Each filled shape becomes an empty outline."},
+    {t:"count",a:(s,c,x,y)=>shapeF(s,x,y,24,c,"solid"),b:(s,c,x,y)=>shapeF(s,x-15,y,14,c,"solid")+shapeF(s,x+15,y,14,c,"solid"),why:"One shape becomes two smaller copies."}
+  ];
+  const R=pick(rules);
+  const left=svg(300,80,R.a(s1,col,40,40)+`<text x="92" y="50" text-anchor="middle" font-size="24" fill="${INK}">:</text>`+R.b(s1,col,144,40)+`<text x="196" y="50" text-anchor="middle" font-size="24" fill="${INK}">::</text>`+R.a(s2,col2,250,40),"analogy","vis",330);
+  const correct=optSvg(R.b(s2,col2,40,40),"answer");
+  const wrongs=[optSvg(R.a(s2,col2,40,40),"shape"),optSvg(R.b(s1,col2,40,40),"shape"),optSvg(R.b(s2,col,40,40),"shape")];
+  return make("flex","The first pair changes in a certain way. Complete the second pair the same way.",left,correct,wrongs,R.why+" The colour and the kind of shape stay the same.","svg");
+}
+function genSeries(lv){
+  const sh=pick(SHAPES),col=pick(COLORS)[0];
+  const mode=lv>=2?pick(["fill","size","both"]):"size";
+  const F=["empty","dotted","striped","solid"];
+  const draw=(i,x,y,s)=>{
+    const r=mode==="fill"?22:14+i*5;
+    const f=mode==="size"?"solid":F[Math.min(3,i)];
+    return shapeF(sh,x,y,mode==="both"?12+i*5:r,col,f);
+  };
+  let inner="";for(let i=0;i<4;i++){inner+=box(i*72+4,4,64,64);inner+=draw(i,i*72+36,36);}
+  inner+=box(4*72+4,4,64,64,true)+qmark(4*72+36,48,30);
+  const correct=optSvg(draw(4,40,40),"answer");
+  const wrongs=[optSvg(draw(3,40,40),"shape"),optSvg(draw(2,40,40),"shape"),optSvg(shapeF(pick(SHAPES.filter(s=>s!==sh)),40,40,26,col,"solid"),"shape")];
+  return make("flex","Which picture comes next in the row?",svg(5*72,76,inner,"shape series","vis",400),correct,wrongs,
+    mode==="fill"?"Each shape gets more filled in than the one before.":mode==="size"?"Each shape is a little bigger than the one before.":"Each shape gets bigger and more filled in.","svg");
+}
+function genGroup(lv){
+  const byFill=lv>=2&&Math.random()<.5;
+  let items,why;
+  if(byFill){
+    const f=pick(["solid","empty","striped","dotted"]);const f2=pick(["solid","empty","striped","dotted"].filter(z=>z!==f));
+    const ss=shuffle(SHAPES).slice(0,4),cs=shuffle(COLORS).slice(0,4);
+    items=[0,1,2,3].map(i=>({s:ss[i],c:cs[i][0],f:i===0?f2:f}));
+    why=`Three shapes are shaded the same way. The odd one is shaded differently — the shapes and colours are all different, so shading is the rule.`;
+  } else {
+    const [s1,s2]=shuffle(SHAPES);const cs=shuffle(COLORS).slice(0,4);
+    items=[0,1,2,3].map(i=>({s:i===0?s2:s1,c:cs[i][0],f:"solid"}));
+    why=`Three are ${s1}s. The ${s2} is the odd one out — the colours don't matter here.`;
+  }
+  const correct=optSvg(shapeF(items[0].s,40,40,26,items[0].c,items[0].f),"shape");
+  const wrongs=items.slice(1).map(it=>optSvg(shapeF(it.s,40,40,26,it.c,it.f),"shape"));
+  return make("flex","Which one does not belong with the others?",null,correct,wrongs,why,"svg");
+}
+
+/* ================= VERBAL ================= */
+const ANALOG2=[
+["Doctor","Hospital","Teacher","School",["Student","Book","Lesson"],"This is where each person works."],
+["Author","Book","Composer","Music",["Piano","Song","Concert"],"Each person creates that thing."],
+["Thermometer","Temperature","Scale","Weight",["Kitchen","Heavy","Number"],"Each tool measures that thing."],
+["Desert","Dry","Ocean","Wet",["Blue","Fish","Big"],"This describes each place."],
+["Puzzle","Pieces","Word","Letters",["Book","Meaning","Page"],"Each is made of those smaller parts."],
+["Herd","Cows","Flock","Birds",["Sky","Feathers","Nest"],"This is the name for a group of them."],
+["Scissors","Cut","Needle","Sew",["Thread","Sharp","Cloth"],"Each tool is used to do that job."],
+["Seed","Plant","Egg","Bird",["Nest","Shell","Yellow"],"The first grows into the second."],
+["Hungry","Eat","Tired","Sleep",["Bed","Night","Yawn"],"This is what you do when you feel that way."],
+["Circle","Round","Square","Four sides",["Big","Red","Flat"],"This describes the shape."],
+["Rain","Cloud","Light","Sun",["Day","Warm","Sky"],"The second one makes the first."],
+["Captain","Ship","Driver","Car",["Road","Wheel","Engine"],"Each person is in charge of that vehicle."],
+["Loud","Noise","Bright","Light",["Sun","Dark","Lamp"],"The word describes that thing."],
+["Frame","Picture","Fence","Garden",["Flower","Wood","Gate"],"Each one goes around the other to enclose it."],
+["Cold","Freeze","Heat","Melt",["Fire","Warm","Water"],"This is what the temperature makes things do."]
+];
+function genAnalogy2(lv){const a=pick(lv>=2?ANALOG2.concat(ANALOGIES):ANALOGIES);return make("verbal",`<b>${a[0]}</b> is to <b>${a[1]}</b> as <b>${a[2]}</b> is to ____?`,null,a[3],a[4],a[5]);}
+const READ=[
+["Noura keeps her books on three shelves. The top shelf has story books, the middle shelf has science books, and the bottom shelf has drawing books. She is looking for a book about planets.","Which shelf should Noura look at?","The middle shelf",["The top shelf","The bottom shelf","None of the shelves"],"A book about planets is a science book, and science books are on the middle shelf."],
+["The school bus leaves at 7:00 every morning. Ahmed takes 15 minutes to walk to the bus stop. Today he woke up late and left his house at 6:50.","What happened to Ahmed?","He missed the bus",["He caught the bus","He arrived early","He walked home"],"Leaving at 6:50 and walking 15 minutes means he arrived at 7:05, after the bus had left."],
+["In a small shop, apples cost 2 riyals each and bananas cost 1 riyal each. Maha bought 3 apples and 2 bananas.","How much did Maha pay?","8 riyals",["5 riyals","6 riyals","10 riyals"],"3 apples = 6 riyals, 2 bananas = 2 riyals, so 6 + 2 = 8 riyals."],
+["All the boxes in the store room are blue. Yazeed found a box in the kitchen. The box is red.","What can we be sure of?","The box did not come from the store room",["The box is broken","The box is empty","All boxes are red"],"Every store-room box is blue, and this box is red, so it cannot be one of them."],
+["Plants in the classroom are watered every Sunday and Wednesday. Today is Monday, and the teacher watered them yesterday.","When will they be watered again?","On Wednesday",["On Monday","On Tuesday","On Friday"],"Yesterday was Sunday, so the next watering day is Wednesday."],
+["Three friends ran a race. Reem finished before Dana. Dana finished before Lama. Nobody finished at the same time.","Who finished last?","Lama",["Reem","Dana","We can't tell"],"The order is Reem, then Dana, then Lama. So Lama was last."],
+["The library is open from 8:00 to 2:00 every day except Friday. Salem went to the library on Friday morning.","What did Salem find?","The library was closed",["The library was busy","The library was open until 2:00","The library had moved"],"The library is closed on Fridays."],
+["A farmer has chickens and sheep. He counted 6 heads in total. Two of the animals are sheep.","How many chickens are there?","4",["2","6","8"],"6 heads − 2 sheep = 4 chickens."]
+];
+function genReading(lv){const r=pick(READ);return make("verbal",`<span style="font-size:1rem;color:var(--ink-soft);display:block;margin-bottom:8px">${r[0]}</span>${r[1]}`,null,r[2],r[3],r[4]);}
+function genOrder2(lv){
+  if(lv<3)return genOrder();
+  const [a,b,c,d]=shuffle(NAMES).slice(0,4);
+  const rel=pick([["taller","shortest","tallest"],["older","youngest","oldest"],["faster","slowest","fastest"]]);
+  const askLow=Math.random()<.5;
+  const s=shuffle([`${a} is ${rel[0]} than ${b}.`,`${b} is ${rel[0]} than ${c}.`,`${c} is ${rel[0]} than ${d}.`]);
+  const ans=askLow?d:a;
+  return make("verbal",`${s.join(" ")} Who is the <b>${askLow?rel[1]:rel[2]}</b>?`,null,ans,[a,b,c,d].filter(x=>x!==ans).slice(0,3),
+    `Put them in order: ${a}, ${b}, ${c}, ${d}. So ${ans} is the ${askLow?rel[1]:rel[2]}.`);
+}
+
+/* ================= SCIENCE & MECHANICS ================= */
+function genLever(lv){
+  const d1=rnd(1,3),d2=rnd(1,3),w1=rnd(1,3),w2=rnd(1,3);
+  const m1=d1*w1,m2=d2*w2;
+  const tilt=m1>m2?-10:m1<m2?10:0;
+  const unit=22;
+  const wt=(x,y,n)=>{let o="";for(let i=0;i<n;i++)o+=`<rect x="${x-14}" y="${y-18-i*15}" width="28" height="13" rx="2" fill="#2F7FD8" stroke="${INK}" stroke-width="1.5"/>`;return o;};
+  const lx=160-d1*34,rx=160+d2*34;
+  let inner=`<polygon points="160,146 142,180 178,180" fill="${INK}" fill-opacity=".65"/>`;
+  inner+=`<g transform="rotate(${tilt} 160 146)"><rect x="30" y="140" width="260" height="9" rx="4" fill="${INK}"/>${wt(lx,140,w1)}${wt(rx,140,w2)}`;
+  for(let i=1;i<=3;i++){inner+=`<circle cx="${160-i*34}" cy="144" r="2.5" fill="#fff"/><circle cx="${160+i*34}" cy="144" r="2.5" fill="#fff"/>`;}
+  inner+=`</g>`;
+  const correct=m1>m2?"The left side goes down":m1<m2?"The right side goes down":"It stays balanced";
+  const all=["The left side goes down","The right side goes down","It stays balanced"].filter(x=>x!==correct);
+  return make("science",`On this lever, the left side has ${w1} block${w1>1?"s":""} at ${d1} step${d1>1?"s":""} from the middle, and the right side has ${w2} block${w2>1?"s":""} at ${d2} step${d2>1?"s":""}. What happens?`,
+    svg(320,190,inner,"a lever","vis",340),correct,all,
+    `Multiply blocks × steps on each side. Left: ${w1}×${d1} = ${m1}. Right: ${w2}×${d2} = ${m2}. ${m1===m2?"They are equal, so it balances.":"The bigger side goes down."}`);
+}
+function genPulley(lv){
+  const movable=rnd(1,2);
+  const draw=(mov)=>{
+    let o=`<rect x="20" y="14" width="200" height="8" fill="${INK}" fill-opacity=".6"/>`;
+    o+=`<circle cx="70" cy="42" r="20" fill="none" stroke="#2F7FD8" stroke-width="6"/><circle cx="70" cy="42" r="4" fill="${INK}"/>`;
+    o+=`<line x1="70" y1="22" x2="70" y2="24" stroke="${INK}" stroke-width="3"/>`;
+    o+=`<path d="M50,42 L50,120" stroke="${INK}" stroke-width="2.5" fill="none"/>`;
+    if(mov===1){o+=`<path d="M90,42 L90,120" stroke="${INK}" stroke-width="2.5"/><rect x="72" y="120" width="36" height="28" rx="3" fill="#F2A900" stroke="${INK}" stroke-width="2"/>`;}
+    else{o+=`<path d="M90,42 L90,96" stroke="${INK}" stroke-width="2.5"/><circle cx="110" cy="96" r="18" fill="none" stroke="#2BA57F" stroke-width="6"/><path d="M128,96 L128,22" stroke="${INK}" stroke-width="2.5"/><rect x="92" y="118" width="36" height="28" rx="3" fill="#F2A900" stroke="${INK}" stroke-width="2"/><line x1="110" y1="114" x2="110" y2="118" stroke="${INK}" stroke-width="3"/>`;}
+    o+=`<polygon points="50,120 44,112 56,112" fill="${INK}"/>`;
+    return o;
+  };
+  const correct=movable===2?"B, because it has an extra moving wheel":"They both need the same pull";
+  if(movable===1){
+    return make("science","A fixed wheel at the top just changes the direction you pull. Does it make the load feel lighter?",
+      svg(240,160,draw(1),"a pulley","vis",240),"No, it only changes the direction",["Yes, it halves the weight","Yes, it doubles the weight","It makes the load heavier"],
+      "A single fixed pulley lets you pull downwards instead of lifting up, but you still pull the full weight.");
+  }
+  return make("science","This system has one fixed wheel at the top and one wheel that moves with the load. What does the moving wheel do?",
+    svg(240,160,draw(2),"a pulley system","vis",240),"It makes the pull feel lighter",["It makes the pull feel heavier","It changes nothing","It makes the rope shorter"],
+    "A moving pulley shares the weight between two parts of the rope, so you pull with about half the force — but you must pull more rope.");
+}
+function genIncline(lv){
+  const steep=rnd(0,1);
+  const ramp=(h,x)=>`<polygon points="${x},150 ${x+120},150 ${x+120},${150-h}" fill="#DCEBFB" stroke="${INK}" stroke-width="2.5"/><circle cx="${x+100}" cy="${150-h*0.78}" r="13" fill="#F2A900" stroke="${INK}" stroke-width="2"/>`;
+  const inner=ramp(40,14)+ramp(95,160)+`<text x="74" y="172" text-anchor="middle" font-size="16" font-weight="600" fill="${INK}">A</text><text x="220" y="172" text-anchor="middle" font-size="16" font-weight="600" fill="${INK}">B</text>`;
+  if(steep){
+    return make("science","Two balls roll down these ramps from the top. Which ball reaches the bottom faster?",svg(292,180,inner,"two ramps","vis",320),
+      "The ball on ramp B",["The ball on ramp A","They arrive at the same time","Neither ball moves"],"Ramp B is steeper, so the ball speeds up more and gets down faster.");
+  }
+  return make("science","You want to push a heavy box up to the same height. Which ramp makes the push easier?",svg(292,180,inner,"two ramps","vis",320),
+    "Ramp A, the gentle one",["Ramp B, the steep one","Both are the same","Neither ramp helps"],"A gentler ramp needs less force, but you have to push along a longer distance.");
+}
+function genGearTeeth(lv){
+  const t1=pick([8,10,12]),turns=pick([2,3]),t2=t1*turns;
+  const g=(cx,cy,r,n,col,lab)=>{let o=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="9" stroke-dasharray="6 6"/><circle cx="${cx}" cy="${cy}" r="${r-7}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="3"/>`;
+    o+=`<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="19" font-family="Baloo 2" font-weight="800" fill="${INK}">${lab}</text><text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="13" fill="${INK}">${n} teeth</text>`;return o;};
+  const inner=g(56,70,42,t1,"#2F7FD8","A")+g(166,70,62,t2,"#E2457A","B");
+  return make("science",`Gear A has ${t1} teeth and gear B has ${t2} teeth. If gear A turns ${turns} full times, how many times does gear B turn?`,
+    svg(240,145,inner,"two gears","vis",280),"1 time",[turns+" times",(turns+1)+" times",(turns*2)+" times"],
+    `The small gear must turn more to move the big gear once. ${t2} ÷ ${t1} = ${turns}, so A turns ${turns} times for every 1 turn of B.`);
+}
+function genStates(lv){
+  const jar=(x,arrange)=>{
+    let o=`<path d="M${x},16 L${x},96 Q${x},106 ${x+10},106 L${x+56},106 Q${x+66},106 ${x+66},96 L${x+66},16" fill="none" stroke="${INK}" stroke-width="2.5"/>`;
+    const dot=(dx,dy)=>`<circle cx="${x+dx}" cy="${dy}" r="4.5" fill="#2F7FD8"/>`;
+    if(arrange==="solid"){for(let r=0;r<3;r++)for(let c=0;c<3;c++)o+=dot(18+c*15,66+r*14);}
+    else if(arrange==="liquid"){const p=[[14,72],[28,78],[44,72],[20,90],[36,92],[52,86],[30,62],[48,58],[16,56]];for(const[a,b]of p)o+=dot(a,b);}
+    else{const p=[[14,28],[44,22],[26,52],[54,62],[18,82],[46,92],[34,38],[58,40],[10,62]];for(const[a,b]of p)o+=dot(a,b);}
+    return o;
+  };
+  const kinds=shuffle(["solid","liquid","gas"]);
+  const ask=pick(["solid","liquid","gas"]);
+  const labels=["A","B","C"];
+  let inner="";kinds.forEach((k,i)=>{inner+=jar(10+i*86,k)+`<text x="${10+i*86+33}" y="126" text-anchor="middle" font-size="16" font-weight="600" fill="${INK}">${labels[i]}</text>`;});
+  const idx=kinds.indexOf(ask);
+  const txt={solid:"a solid, like ice",liquid:"a liquid, like water",gas:"a gas, like steam"}[ask];
+  const why={solid:"In a solid the tiny parts are packed in a neat pattern and hardly move.",liquid:"In a liquid the parts stay together at the bottom but slide around.",gas:"In a gas the parts spread out and fill the whole container."}[ask];
+  return make("science",`These jars show the tiny parts inside three things. Which jar shows <b>${txt}</b>?`,
+    svg(272,136,inner,"three jars","vis",300),"Jar "+labels[idx],labels.filter((_,i)=>i!==idx).map(l=>"Jar "+l).concat(["All three jars"]).slice(0,3),why);
+}
+function genCompass(lv){
+  const dirs=["North","East","South","West"];
+  const start=rnd(0,3);
+  const n=lv>=3?rnd(2,3):rnd(1,2);
+  const cw=Math.random()<.5;
+  const end=((start+(cw?n:-n))%4+4)%4;
+  const R=58,cx=70,cy=70;
+  let inner=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${INK}" stroke-opacity=".4" stroke-width="2.5"/>`;
+  const pos=[[0,-R-4],[R+4,0],[0,R+4],[-R-4,0]];
+  dirs.forEach((d,i)=>{inner+=`<text x="${cx+pos[i][0]}" y="${cy+pos[i][1]+6}" text-anchor="middle" font-size="15" font-weight="700" fill="${INK}">${d[0]}</text>`;});
+  inner+=`<g transform="rotate(${start*90} ${cx} ${cy})"><polygon points="${cx},${cy-R+12} ${cx+12},${cy+8} ${cx-12},${cy+8}" fill="#E2457A"/></g><circle cx="${cx}" cy="${cy}" r="5" fill="${INK}"/>`;
+  return make("science",`The arrow points ${dirs[start]}. It turns a quarter turn ${cw?"clockwise":"counter-clockwise"} ${n} time${n>1?"s":""}. Which way does it point now?`,
+    svg(140,146,inner,"compass","vis",170),dirs[end],dirs.filter(d=>d!==dirs[end]),
+    `Going ${cw?"clockwise":"counter-clockwise"} from ${dirs[start]}: ${Array.from({length:n},(_,i)=>dirs[((start+(cw?i+1:-(i+1)))%4+4)%4]).join(", then ")}.`);
+}
 
 const GENS={
-  math:[genSeq,genSeq,genWord,genRotate],
-  flex:[genMatrix,genOdd,genGrowth,genMatrix],
-  verbal:[genAnalogy,genWords,genOrder,genStory],
-  science:[genGears,genBalance,genFact,genFact]
+  math:{1:[genSeq,genSeq,genWord,genWord,genRotate,genDice,genBlocks],
+        2:[genSeq,genWord,genRotate,genDice,genBlocks,genShapeEq,genFold,genGrid,genMirror],
+        3:[genSeq,genWord,genFold,genGrid,genShapeEq,genWheel,genMirror,genBlocks,genDice]},
+  flex:{1:[genMatrix2,genGroup,genGrowth,genSeries],
+        2:[genMatrix2,genGroup,genSeries,genPicAnalogy,genRotMatrix,genGrowth],
+        3:[genRotMatrix,genMatrix2,genPicAnalogy,genSeries,genGroup]},
+  verbal:{1:[genAnalogy2,genWords,genOrder2,genStory],
+          2:[genAnalogy2,genWords,genOrder2,genStory,genReading],
+          3:[genAnalogy2,genReading,genOrder2,genStory,genReading]},
+  science:{1:[genGears,genBalance,genFact,genFact,genStates],
+           2:[genGears,genBalance,genFact,genLever,genIncline,genCompass,genStates],
+           3:[genGearTeeth,genLever,genPulley,genCompass,genBalance,genIncline,genFact]}
 };
+function levelOf(sec,o){
+  o=o||S;let c=0,t=0;
+  for(let i=o.sessions.length-1;i>=0&&t<24;i--){const b=o.sessions[i].by&&o.sessions[i].by[sec];if(b){c+=b[0];t+=b[1];}}
+  if(t<12)return 1;
+  const a=c/t;
+  return a>=.85?3:a>=.68?2:1;
+}
+const LVNAME={1:"Starter",2:"Challenger",3:"Champion"};
 function buildSet(plan){ // plan: array of section keys
   const used=new Set(),out=[];
   for(const s of plan){
-    let q,tries=0; do{q=pick(GENS[s])();tries++;}while(used.has(q.key)&&tries<20);
-    used.add(q.key);out.push(q);
+    const lv=levelOf(s);const pool=GENS[s][lv]||GENS[s][1];
+    let q,tries=0; do{q=pick(pool)(lv);tries++;}while(used.has(q.key)&&tries<20);
+    q.lv=lv;used.add(q.key);out.push(q);
   }
   return out;
 }
+/* ---------- Real exam blueprint: 64 Q, 12 timed sections, 103 min ---------- */
+const EXAM_PLAN=(()=>{
+  const small=[],big=[];
+  for(const k of SEC_KEYS){small.push(k,k);big.push(k);}
+  const out=[];
+  shuffle(small).forEach(k=>out.push({sec:k,n:4,secs:360}));
+  shuffle(big).forEach(k=>out.push({sec:k,n:8,secs:825}));
+  return shuffle(out);
+})();
 
 /* ---------------- State & sync ---------------- */
 const LS="mawhiba-quest-v1";
@@ -561,7 +973,7 @@ function rebuild(o){ // stats and days are always recomputed from sessions
   for(const s of o.sessions){
     for(const k in (s.by||{})){if(o.stats[k]){o.stats[k].c+=s.by[k][0];o.stats[k].t+=s.by[k][1];}}
     const dk=keyOf(new Date(s.at));o.days[dk]=o.days[dk]||{q:0,c:0,mission:false};
-    o.days[dk].q+=s.t;o.days[dk].c+=s.c;if(s.mode==="mission"||s.mode==="mock")o.days[dk].mission=true;
+    o.days[dk].q+=s.t;o.days[dk].c+=s.c;if(s.mode==="mission"||s.mode==="mock"||s.mode==="exam")o.days[dk].mission=true;
   }
   return o;
 }
@@ -652,6 +1064,8 @@ const BADGES=[
   {i:"⭐",n:"100 correct",ok:()=>totalCorrect()>=100},
   {i:"🧠",n:"All 4 areas",ok:()=>SEC_KEYS.every(k=>S.stats[k].t>=10)},
   {i:"⏱️",n:"Mock test done",ok:()=>S.sessions.some(s=>s.mode==="mock")},
+  {i:"🎓",n:"Full test done",ok:()=>S.sessions.some(s=>s.mode==="exam")},
+  {i:"🚩",n:"Level 3 reached",ok:()=>SEC_KEYS.some(k=>levelOf(k)>=3)},
   {i:"🏆",n:"Mock 80%+",ok:()=>S.sessions.some(s=>s.mode==="mock"&&s.c/s.t>=.8)}
 ];
 function bestStreak(){const ks=Object.keys(S.days).filter(k=>S.days[k].q>0).sort();let best=0,cur=0,prev=null;for(const k of ks){const d=new Date(k+"T00:00:00");if(prev&&daysBetween(prev,d)===1)cur++;else cur=1;best=Math.max(best,cur);prev=d;}return best;}
@@ -722,11 +1136,18 @@ function vPractice(){
   return `${top()}
   <h1 style="font-size:2rem">Practice</h1>
   <p style="color:var(--ink-soft);margin:.3rem 0 14px">Pick an area for 10 questions with explanations after each one.</p>
-  <div class="secs">${SEC_KEYS.map(k=>{const a=acc(k);return `<button class="sec" data-sec="${k}"><div class="ico ${SECS[k].cls}">${SECS[k].ico}</div><h3>${SECS[k].name}</h3><p>${SECS[k].desc}</p><div class="acc">${a===null?"Not tried yet":`${a}% correct · ${S.stats[k].t} answered`}</div></button>`;}).join("")}</div>
+  <div class="secs">${SEC_KEYS.map(k=>{const a=acc(k);return `<button class="sec" data-sec="${k}"><div class="ico ${SECS[k].cls}">${SECS[k].ico}</div><h3>${SECS[k].name}</h3><p>${SECS[k].desc}</p><div class="acc">${a===null?"Not tried yet":`${a}% correct · ${S.stats[k].t} answered`}</div><div class="lvtag">Level ${levelOf(k)} · ${LVNAME[levelOf(k)]}</div></button>`;}).join("")}</div>
+  <p style="color:var(--ink-soft);font-size:.86rem;margin:10px 0 0">The level rises on its own when he keeps getting an area right, and eases back if it gets too hard.</p>
   <h2 class="sh">Mock test</h2>
   <section class="card">
     <p style="margin:0 0 12px;color:var(--ink-soft)">20 mixed questions in 25 minutes, like the real screen test. No hints until the end, then a full review.</p>
     <button class="btn mint" data-act="mock">Start mock test</button>
+  </section>
+  <h2 class="sh">Full test rehearsal</h2>
+  <section class="card">
+    <p style="margin:0 0 6px;color:var(--ink-soft)">The real thing: <b>64 questions in 12 timed parts, about 103 minutes</b> — the same shape as the Mawhiba Level 1 screen test.</p>
+    <p style="margin:0 0 12px;color:var(--ink-soft);font-size:.9rem">Each part has its own short timer, and <b>once a part's time ends it closes for good</b>. That rule is what costs children marks, so it is worth practising. Best done once or twice in the last week.</p>
+    <button class="btn" data-act="exam">Start full test</button>
   </section>`;
 }
 function vProgress(){
@@ -735,7 +1156,7 @@ function vProgress(){
   const maxQ=Math.max(10,...days.map(x=>x.q));const W=560,H=170,bw=W/14;
   let bars="";days.forEach((x,i)=>{const h=(x.q/maxQ)*(H-40),hc=(x.c/maxQ)*(H-40);bars+=`<rect x="${i*bw+6}" y="${H-24-h}" width="${bw-12}" height="${h}" rx="5" fill="#2F7FD8" fill-opacity=".25"/><rect x="${i*bw+6}" y="${H-24-hc}" width="${bw-12}" height="${hc}" rx="5" fill="#2BA57F"/><text x="${i*bw+bw/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${INK}" fill-opacity=".7">${x.d.getDate()}</text>`;});
   const rows=SEC_KEYS.map(k=>{const a=acc(k);const col={math:"#2F7FD8",flex:"#7B5CD6",verbal:"#E2457A",science:"#2BA57F"}[k];return `<div class="row"><span>${SECS[k].ico} ${SECS[k].name.split(" ")[0]}</span><div class="track"><div style="width:${a||0}%;background:${col}"></div></div><b>${a===null?"–":a+"%"}</b></div>`;}).join("");
-  const hist=S.sessions.slice(-12).reverse().map(s=>`<div><span>${new Date(s.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${s.mode==="mock"?"Mock test":s.mode==="mission"?"Mission":SECS[s.sec]?SECS[s.sec].name:"Practice"}</span><b>${s.c}/${s.t} · ${Math.max(1,Math.round(s.secs/60))} min</b></div>`).join("");
+  const hist=S.sessions.slice(-12).reverse().map(s=>`<div><span>${new Date(s.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${s.mode==="exam"?"Full test (64 Q)":s.mode==="mock"?"Mock test":s.mode==="mission"?"Mission":SECS[s.sec]?SECS[s.sec].name:"Practice"}</span><b>${s.c}/${s.t} · ${Math.max(1,Math.round(s.secs/60))} min</b></div>`).join("");
   return `${top()}
   <h1 style="font-size:2rem;margin-bottom:12px">Progress</h1>
   <div class="stats" style="margin-bottom:16px">
@@ -766,11 +1187,18 @@ function vGuide(){
   <section class="card"><h3>The 40-day plan</h3>
   ${PHASES.map(p=>`<div class="phase ${p.n===ph.n?"now":""}"><div class="n">${p.n}</div><div><b>${p.name}</b> <span style="color:var(--ink-soft);font-size:.85rem">${p.range}${p.n===ph.n?" · now":""}</span><p style="margin:.2rem 0 0">${p.tip}</p></div></div>`).join("")}
   <p>The daily mission follows this plan on its own: 6 questions from the current focus and 4 mixed, so earlier skills stay fresh.</p></section>
+  <section class="card"><h3>What the real test looks like</h3>
+  <p>Level 1 is taken on a computer: <b>64 questions in 12 timed parts, about 103 minutes</b> — eight parts of 4 questions and four parts of 8.</p>
+  <p>The part that surprises children most: <b>each part has its own timer, and once it ends that part closes for good.</b> You cannot go back to it. "Start full test" in Practice rehearses exactly that.</p>
+  <p>Scores are reported between 1000 and 2000, and the same paper is used for grades 3, 4 and 5, with the marking adjusted for age.</p></section>
+  <section class="card"><h3>Levels</h3>
+  <p>Each of the four areas has its own level, from 1 to 3. It rises on its own when he keeps answering an area correctly, and eases back if the questions get too hard, so practice stays at the right stretch. You can see the current level on each area in Practice.</p></section>
   <section class="card"><h3>Habits that help</h3><ol>
   <li>Keep sessions short — one mission (about 15 minutes) a day beats a long weekend cram.</li>
   <li>Use the ✕ button to cross out answers that are clearly wrong. Picking from two choices is much easier than four.</li>
   <li>After a wrong answer, ask him to explain the rule back to you in his own words.</li>
-  <li>In phase 4, do the mock test on the same kind of screen he'll use at the test centre.</li>
+  <li>In phase 4, do the <b>full test</b> once or twice on the same kind of screen he'll use at the test centre.</li>
+  <li>Teach him to answer every question in a part before its time ends — a blank answer scores zero, while a guess from two choices is a coin flip.</li>
   <li>The night before: sleep early, no new material.</li></ol></section>
   <section class="card"><h3>Official source</h3><p>Check Mawhiba's own site for the official sample test and any updates to the test day details: <a href="https://www.mawhiba.sa" target="_blank" rel="noopener">mawhiba.sa</a>.</p></section>
   </div>`;
@@ -785,6 +1213,15 @@ function startQuiz(mode,sec){
     else{const f=[];for(let i=0;i<6;i++)f.push(ph.focus[i%ph.focus.length]);const o=[];for(let i=0;i<4;i++)o.push((others.length?others:SEC_KEYS)[i%(others.length||4)]);plan=shuffle([...f,...o]);}
   } else if(mode==="mock"){plan=shuffle([...Array(5).fill("math"),...Array(5).fill("flex"),...Array(5).fill("verbal"),...Array(5).fill("science")]);}
   else plan=Array(10).fill(sec);
+  if(mode==="exam"){
+    const parts=EXAM_PLAN.map(p=>{
+      const list=buildSet(Array(p.n).fill(p.sec));
+      return {sec:p.sec,dur:p.secs,list,ans:list.map(()=>null),flag:list.map(()=>false),struck:list.map(()=>new Set()),used:0};
+    });
+    Q={mode:"exam",sec:null,parts,si:0,qi:0,start:Date.now(),end:Date.now()+parts[0].dur*1000,
+       list:[],ans:[],struck:[],picked:null,locked:false};
+    render();window.scrollTo(0,0);clearInterval(timerInt);timerInt=setInterval(tick,500);return;
+  }
   Q={mode,sec,list:buildSet(plan),i:0,ans:[],struck:[],picked:null,locked:false,start:Date.now(),end:mode==="mock"?Date.now()+25*60e3:null};
   Q.struck=Q.list.map(()=>new Set());
   render();window.scrollTo(0,0);
@@ -793,8 +1230,60 @@ function startQuiz(mode,sec){
 function tick(){
   if(!Q||!Q.end){clearInterval(timerInt);return;}
   const left=Math.max(0,Q.end-Date.now());const el=$("#timer");
-  if(el){el.textContent=fmt(left);el.classList.toggle("low",left<3*60e3);}
-  if(left<=0){clearInterval(timerInt);while(Q.ans.length<Q.list.length)Q.ans.push(null);finish();}
+  if(el){el.textContent=fmt(left);el.classList.toggle("low",left<(Q.mode==="exam"?60e3:3*60e3));}
+  if(left<=0){if(Q.mode==="exam"){nextPart(true);return;}clearInterval(timerInt);while(Q.ans.length<Q.list.length)Q.ans.push(null);finish();}
+}
+function nextPart(auto){
+  const p=Q.parts[Q.si];p.used=p.dur-Math.max(0,Math.round((Q.end-Date.now())/1000));
+  if(Q.si>=Q.parts.length-1){clearInterval(timerInt);finishExam();return;}
+  Q.si++;Q.qi=0;Q.end=Date.now()+Q.parts[Q.si].dur*1000;
+  render();window.scrollTo(0,0);
+  if(auto)toast("Time up — moving on");
+}
+function finishExam(){
+  clearInterval(timerInt);
+  const list=[],ans=[];
+  for(const p of Q.parts){p.list.forEach((q,i)=>{list.push(q);ans.push(p.ans[i]);});}
+  const secsTaken=Math.round((Date.now()-Q.start)/1000);
+  let c=0;const by={};
+  list.forEach((q,i)=>{const ok=ans[i]===q.answer;if(ok)c++;by[q.sec]=by[q.sec]||[0,0];by[q.sec][1]++;if(ok)by[q.sec][0]++;});
+  const before=BADGES.filter(b=>b.ok()).length;
+  S.sessions.push({at:Date.now(),mode:"exam",sec:null,c,t:list.length,secs:secsTaken,by});
+  if(S.sessions.length>1000)S.sessions=S.sessions.slice(-1000);
+  save();
+  Q.list=list;Q.ans=ans;
+  Q.result={c,t:list.length,by,secs:secsTaken,newBadges:BADGES.filter(b=>b.ok()).length-before};
+  Q.done=true;render();window.scrollTo(0,0);
+}
+function vExam(){
+  const p=Q.parts[Q.si],q=p.list[Q.qi],n=p.list.length;
+  const grid=q.kind==="svg",letters="ABCD";
+  const opts=q.options.map((o,i)=>{
+    let cls="opt";
+    if(p.struck[Q.qi].has(i))cls+=" struck";
+    if(p.ans[Q.qi]===i)cls+=" sel";
+    return `<div style="position:relative"><button class="${cls}" data-eopt="${i}" aria-label="Answer ${letters[i]}"><span class="let">${letters[i]}</span><span class="body">${o}</span></button><button class="x" data-ex="${i}" title="Cross out" aria-label="Cross out ${letters[i]}" style="position:absolute;top:6px;right:6px">✕</button></div>`;
+  }).join("");
+  const strip=p.list.map((_,i)=>`<button class="qn ${i===Q.qi?"cur":""} ${p.ans[i]!==null?"ansd":""} ${p.flag[i]?"flag":""}" data-ego="${i}">${i+1}</button>`).join("");
+  const left=Math.max(0,Q.end-Date.now());
+  return `<div class="qhead"><button class="btn ghost" data-act="quit" style="padding:8px 14px">✕ Stop</button>
+    <div class="bar" aria-label="progress"><div style="width:${100*Q.si/Q.parts.length}%"></div></div>
+    <span class="pill">Part ${Q.si+1}/${Q.parts.length}</span><span class="timer" id="timer">${fmt(left)}</span></div>
+  <div style="font-family:'Baloo 2';font-weight:700;color:var(--ink-soft);margin-bottom:8px">${SECS[p.sec].ico} ${SECS[p.sec].name} · question ${Q.qi+1} of ${n}</div>
+  <div class="qnav">${strip}</div>
+  <section class="card qcard">
+    <p class="prompt">${q.prompt}</p>
+    ${q.visual||""}
+    <div class="opts ${grid?"grid":""}">${opts}</div>
+    <div class="qfoot">
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" data-act="eprev" ${Q.qi===0?"disabled":""} style="padding:10px 16px">← Back</button>
+        <button class="btn ghost" data-act="eflag" style="padding:10px 16px">${p.flag[Q.qi]?"★ Marked":"☆ Mark"}</button>
+      </div>
+      ${Q.qi<n-1?`<button class="btn" data-act="enext">Next →</button>`:`<button class="btn mint" data-act="edone">${Q.si===Q.parts.length-1?"Finish test":"Finish this part"}</button>`}
+    </div>
+  </section>
+  <p class="hint" style="text-align:center">When this part's time ends it closes for good — you can't come back to it.</p>`;
 }
 const fmt=ms=>{const s=Math.ceil(ms/1000);return Math.floor(s/60)+":"+pad(s%60);};
 function vQuiz(){
@@ -810,7 +1299,7 @@ function vQuiz(){
   }).join("");
   let fb="";
   if(Q.locked&&!mock){const ok=Q.picked===q.answer;fb=`<div class="fb ${ok?"ok":"no"} pop"><b>${ok?pick((SKINS[S.skin]||SKINS.classic).praise):(SKINS[S.skin]||SKINS.classic).oops}</b> ${ok?"":`The answer is ${letters[q.answer]}. `}${q.explain}</div>`;}
-  const title=Q.mode==="mock"?"Mock test":Q.mode==="mission"?"Today's mission":SECS[Q.sec].name;
+  const title=Q.mode==="exam"?"Full test":Q.mode==="mock"?"Mock test":Q.mode==="mission"?"Today's mission":SECS[Q.sec].name;
   return `<div class="qhead"><button class="btn ghost" data-act="quit" style="padding:8px 14px">✕ Stop</button><div class="bar" aria-label="progress"><div style="width:${100*Q.i/n}%"></div></div><span class="pill">${Q.i+1}/${n}</span>${mock?`<span class="timer" id="timer">${fmt(Q.end-Date.now())}</span>`:""}</div>
   <div style="font-family:'Baloo 2';font-weight:700;color:var(--ink-soft);margin-bottom:8px">${title}</div>
   <section class="card qcard">
@@ -843,14 +1332,14 @@ function vResult(){
   const msg=pct>=90?"Outstanding!":pct>=70?"Great job!":pct>=50?"Good effort — keep going!":"Every mistake teaches something. Let's review!";
   const rows=Object.keys(r.by).map(k=>{const [c,t]=r.by[k];return `<div class="row"><span>${SECS[k].ico} ${SECS[k].name.split(" ")[0]}</span><div class="track"><div style="width:${100*c/t}%;background:var(--mint)"></div></div><b>${c}/${t}</b></div>`;}).join("");
   const letters="ABCD";
-  const review=Q.list.map((q,i)=>{const ok=Q.ans[i]===q.answer;if(ok&&Q.mode!=="mock")return "";return `<div class="rev"><div class="q">${ok?"✅":"❌"} ${q.prompt}</div>${q.visual?`<div style="max-width:260px">${q.visual}</div>`:""}<div class="a">${Q.ans[i]==null?"Not answered. ":ok?"":`Picked ${letters[Q.ans[i]]}. `}Answer: <b>${letters[q.answer]}</b>${q.kind==="text"?` — ${q.options[q.answer]}`:""}. ${q.explain}</div></div>`;}).join("");
+  const review=Q.list.map((q,i)=>{const ok=Q.ans[i]===q.answer;if(ok&&Q.mode!=="mock"&&Q.mode!=="exam")return "";return `<div class="rev"><div class="q">${ok?"✅":"❌"} ${q.prompt}</div>${q.visual?`<div style="max-width:260px">${q.visual}</div>`:""}<div class="a">${Q.ans[i]==null?"Not answered. ":ok?"":`Picked ${letters[Q.ans[i]]}. `}Answer: <b>${letters[q.answer]}</b>${q.kind==="text"?` — ${q.options[q.answer]}`:""}. ${q.explain}</div></div>`;}).join("");
   return `<section class="card" style="text-align:center">
     <div class="big pop">${r.c}/${r.t}</div>
     <h2 style="font-size:1.6rem;margin-top:6px">${msg}</h2>
     <p style="color:var(--ink-soft);margin:.3rem 0 0">${Math.max(1,Math.round(r.secs/60))} minutes · +${r.c} ⭐${Q.mode==="mission"?" · Today's stone is lit ★":""}${r.newBadges>0?" · New badge unlocked!":""}</p>
   </section>
   <section class="card"><h3 style="font-size:1.2rem">By area</h3><div class="rows">${rows}</div></section>
-  ${review?`<section class="card"><h3 style="font-size:1.2rem;margin-bottom:6px">${Q.mode==="mock"?"Full review":"Let's look at the tricky ones"}</h3>${review}</section>`:""}
+  ${review?`<section class="card"><h3 style="font-size:1.2rem;margin-bottom:6px">${Q.mode==="mock"||Q.mode==="exam"?"Full review":"Let's look at the tricky ones"}</h3>${review}</section>`:""}
   <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-act="home">Back to Today</button><button class="btn ghost" data-act="again">Another round</button></div>`;
 }
 
@@ -873,7 +1362,7 @@ function render(){
   document.documentElement.setAttribute("data-skin",SKINS[S.skin]?S.skin:"classic");
   const app=$("#app");
   if(SYNC_ON&&!FB.user){app.innerHTML=vLogin();document.querySelector("nav").style.display="none";return;}
-  if(Q)app.innerHTML=Q.done?vResult():vQuiz();
+  if(Q)app.innerHTML=Q.done?vResult():Q.mode==="exam"?vExam():vQuiz();
   else app.innerHTML=view==="today"?vToday():view==="practice"?vPractice():view==="progress"?vProgress():vGuide();
   renderNav();
 }
@@ -881,6 +1370,9 @@ document.addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t)return;
   if(t.dataset.go){go(t.dataset.go);return;}
   if(t.dataset.sec){startQuiz("practice",t.dataset.sec);return;}
+  if(t.dataset.ego!==undefined&&Q&&Q.parts){Q.qi=+t.dataset.ego;render();window.scrollTo(0,0);return;}
+  if(t.dataset.eopt!==undefined&&Q&&Q.parts){const p=Q.parts[Q.si],i=+t.dataset.eopt;p.struck[Q.qi].delete(i);p.ans[Q.qi]=i;render();return;}
+  if(t.dataset.ex!==undefined&&Q&&Q.parts){const p=Q.parts[Q.si],i=+t.dataset.ex,s=p.struck[Q.qi];s.has(i)?s.delete(i):s.add(i);if(p.ans[Q.qi]===i)p.ans[Q.qi]=null;render();return;}
   if(t.dataset.x!==undefined&&Q&&!Q.locked){const i=+t.dataset.x,s=Q.struck[Q.i];s.has(i)?s.delete(i):s.add(i);if(Q.picked===i)Q.picked=null;render();return;}
   if(t.dataset.opt!==undefined&&Q&&!Q.locked){const i=+t.dataset.opt;if(Q.struck[Q.i].has(i))Q.struck[Q.i].delete(i);Q.picked=i;render();return;}
   const a=t.dataset.act;if(!a)return;
@@ -892,6 +1384,15 @@ document.addEventListener("click",e=>{
     if(Q.i===Q.list.length-1){finish();return;}
     Q.i++;Q.picked=null;Q.locked=false;render();window.scrollTo(0,0);
   }
+  else if(a==="eprev"){Q.qi=Math.max(0,Q.qi-1);render();window.scrollTo(0,0);}
+  else if(a==="enext"){Q.qi=Math.min(Q.parts[Q.si].list.length-1,Q.qi+1);render();window.scrollTo(0,0);}
+  else if(a==="eflag"){const p=Q.parts[Q.si];p.flag[Q.qi]=!p.flag[Q.qi];render();}
+  else if(a==="edone"){
+    const p=Q.parts[Q.si],un=p.ans.filter(x=>x===null).length;
+    const last=Q.si===Q.parts.length-1;
+    if(confirm(un?`${un} question${un>1?"s are":" is"} still unanswered. Close this part for good?`:"Close this part for good? You can't come back to it."))nextPart(false);
+  }
+  else if(a==="exam"){if(confirm("This is the full test: 64 questions in 12 timed parts, about 103 minutes. Once a part's time ends you cannot go back. Ready?"))startQuiz("exam");}
   else if(a==="quit"){if(confirm("Stop this round? Answers so far won't be saved."))go(view);}
   else if(a==="home")go("today");
   else if(a==="again"){const m=Q.mode,s=Q.sec;startQuiz(m,s);}
