@@ -718,8 +718,9 @@ function genMatrix2(lv){
   }
   const aS=sh[1],aC=cols[2][0],aF=F(2,2);
   const correct=optSvg(shapeF(aS,40,40,26,aC,aF),"answer");
+  const othF=fills.find(f=>f!==aF)||"empty";
   const wrongs=[optSvg(shapeF(sh[0],40,40,26,aC,aF),"shape"),optSvg(shapeF(aS,40,40,26,cols[0][0],aF),"shape"),
-    optSvg(shapeF(aS,40,40,26,aC,useFill?fills[(1)%3]:"solid"),"shape")];
+    optSvg(useFill?shapeF(aS,40,40,26,aC,othF):shapeF(sh[2],40,40,26,cols[1][0],aF),"shape")];
   return make("flex","Which picture completes the grid?",svg(240,240,inner,"three by three grid","vis",250),correct,wrongs,
     `Each row uses one colour (this row is ${cols[2][1]}), and the shapes shift along one step in every row${useFill?", and the way they are shaded shifts too":""}.`,"svg");
 }
@@ -756,10 +757,10 @@ function genPicAnalogy(lv){
 function genSeries(lv){
   const sh=pick(SHAPES),col=pick(COLORS)[0];
   const mode=lv>=2?pick(["fill","size","both"]):"size";
-  const F=["empty","dotted","striped","solid"];
+  const F=["empty","dotted","hatched","striped","solid"];
   const draw=(i,x,y,s)=>{
     const r=mode==="fill"?22:14+i*5;
-    const f=mode==="size"?"solid":F[Math.min(3,i)];
+    const f=mode==="size"?"solid":F[Math.min(4,i)];
     return shapeF(sh,x,y,mode==="both"?12+i*5:r,col,f);
   };
   let inner="";for(let i=0;i<4;i++){inner+=box(i*72+4,4,64,64);inner+=draw(i,i*72+36,36);}
