@@ -229,6 +229,16 @@ html:root[data-skin="hero"]{
 .skin{border:2px solid var(--line);background:var(--card);border-radius:14px;padding:10px 6px;font-weight:600;font-size:.88rem;display:flex;flex-direction:column;align-items:center;gap:4px}
 .skin i{font-style:normal;font-size:1.6rem}
 .skin.on{outline:3px solid var(--sky);outline-offset:2px}
+/* Word Coach */
+.fcard{width:100%;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:26px 18px;margin-bottom:0}
+.fcard .cat{font-size:.8rem;font-weight:600;border-radius:8px;padding:2px 10px;background:var(--paper);border:2px solid var(--line)}
+.fcard .en{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:clamp(2.2rem,9vw,3.3rem);line-height:1.1}
+.fcard .ar{font-size:clamp(2rem,8vw,2.8rem);font-weight:700;line-height:1.4;color:var(--berry)}
+.fcard .rel{color:var(--ink-soft);font-size:1.02rem;max-width:30ch}
+.wcbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+[data-skin="blocks"] .fcard .en,[data-skin="hero"] .fcard .en{font-family:"Pixelify Sans","Baloo 2",monospace}
+[data-skin="hero"] .fcard .en{font-family:"Bangers","Baloo 2",sans-serif;font-weight:400;letter-spacing:.04em}
+[data-skin="hero"] .fcard .ar{color:#E8282B}
 </style>
 </head>
 <body>
@@ -924,6 +934,128 @@ function genCompass(lv){
     `Going ${cw?"clockwise":"counter-clockwise"} from ${dirs[start]}: ${Array.from({length:n},(_,i)=>dirs[((start+(cw?i+1:-(i+1)))%4+4)%4]).join(", then ")}.`);
 }
 
+/* ---------- Word Coach banks (they also feed Verbal questions) ---------- */
+const mkBank=(rows,f)=>rows.map(r=>{const o={};f.forEach((k,i)=>{o[k]=r[i];});return o;});
+const an=w=>/^[aeiou]/i.test(w)?"an":"a";
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+// opposites: word, word, arabic, arabic, level, type (a adjective, v verb, n other)
+const OPP=mkBank([
+["hot","cold","ساخن","بارد",1,"a"],["big","small","كبير","صغير",1,"a"],["happy","sad","سعيد","حزين",1,"a"],["fast","slow","سريع","بطيء",1,"a"],
+["open","closed","مفتوح","مغلق",1,"a"],["up","down","فوق","تحت",1,"n"],["full","empty","ممتلئ","فارغ",1,"a"],["heavy","light","ثقيل","خفيف",1,"a"],
+["day","night","نهار","ليل",1,"n"],["young","old","صغير السن","كبير السن",1,"a"],["wet","dry","مبلل","جاف",1,"a"],["clean","dirty","نظيف","متسخ",1,"a"],
+["tall","short","طويل","قصير",1,"a"],["thick","thin","سميك","رفيع",1,"a"],["loud","quiet","عالٍ","هادئ",1,"a"],["near","far","قريب","بعيد",1,"a"],
+["strong","weak","قوي","ضعيف",1,"a"],["early","late","مبكر","متأخر",1,"a"],["inside","outside","داخل","خارج",1,"n"],["sweet","sour","حلو","حامض",1,"a"],
+["cheap","expensive","رخيص","غالٍ",1,"a"],["front","back","أمام","خلف",1,"n"],["first","last","الأول","الأخير",1,"a"],["soft","hard","ناعم","قاسٍ",1,"a"],
+["win","lose","يفوز","يخسر",2,"v"],["buy","sell","يشتري","يبيع",2,"v"],["push","pull","يدفع","يسحب",2,"v"],["laugh","cry","يضحك","يبكي",2,"v"],
+["remember","forget","يتذكّر","ينسى",2,"v"],["true","false","صحيح","خاطئ",2,"a"],["always","never","دائمًا","أبدًا",2,"n"],["begin","end","يبدأ","ينتهي",2,"v"],
+["rich","poor","غني","فقير",2,"a"],["wide","narrow","واسع","ضيّق",2,"a"],["smooth","rough","أملس","خشن",2,"a"],["safe","dangerous","آمن","خطير",2,"a"],
+["brave","scared","شجاع","خائف",2,"a"],["friend","enemy","صديق","عدو",2,"n"],["awake","asleep","مستيقظ","نائم",2,"a"],["freeze","melt","يتجمّد","يذوب",2,"v"],
+["float","sink","يطفو","يغرق",2,"v"],["same","different","نفسه","مختلف",2,"a"],["healthy","sick","سليم","مريض",2,"a"],["arrive","leave","يصل","يغادر",2,"v"],
+["sharp","blunt","حادّ","غير حادّ",3,"a"],["generous","selfish","كريم","أناني",3,"a"],["ancient","modern","قديم جدًا","حديث",3,"a"],["increase","decrease","يزيد","ينقص",3,"v"],
+["visible","invisible","ظاهر","غير مرئي",3,"a"],["possible","impossible","ممكن","مستحيل",3,"a"],["polite","rude","مهذّب","وقح",3,"a"],["shallow","deep","ضحل","عميق",3,"a"],
+["fresh","stale","طازج","بائت",3,"a"],["lazy","hardworking","كسول","مجتهد",3,"a"],["accept","refuse","يقبل","يرفض",3,"v"],["borrow","lend","يستعير","يُعير",3,"v"]
+],["a","b","x","y","d","t"]);
+// same meaning: word, word, arabic, level, type — one pair per meaning so no wrong choice can also be right
+const SYN=mkBank([
+["big","large","كبير",1,"a"],["little","small","صغير",1,"a"],["happy","glad","سعيد",1,"a"],["fast","quick","سريع",1,"a"],
+["begin","start","يبدأ",1,"v"],["end","finish","ينهي",1,"v"],["gift","present","هدية",1,"n"],["kid","child","طفل",1,"n"],
+["road","street","طريق",1,"n"],["sick","ill","مريض",1,"a"],["mad","angry","غاضب",1,"a"],["pick","choose","يختار",1,"v"],
+["fix","repair","يصلح",1,"v"],["talk","speak","يتكلم",1,"v"],["smart","clever","ذكي",1,"a"],["easy","simple","سهل",1,"a"],
+["hard","difficult","صعب",1,"a"],["sofa","couch","أريكة",1,"n"],["rock","stone","حجر",1,"n"],["pretty","beautiful","جميل",1,"a"],
+["sad","unhappy","حزين",1,"a"],
+["jump","leap","يقفز",2,"v"],["tired","exhausted","متعب",2,"a"],["wrong","incorrect","خاطئ",2,"a"],["cold","chilly","بارد",2,"a"],
+["quiet","silent","هادئ",2,"a"],["help","assist","يساعد",2,"v"],["buy","purchase","يشتري",2,"v"],["reply","answer","يجيب",2,"v"],
+["scared","afraid","خائف",2,"a"],["shout","yell","يصرخ",2,"v"],["brave","bold","شجاع",2,"a"],["rich","wealthy","غني",2,"a"],
+["strange","odd","غريب",2,"a"],["trip","journey","رحلة",2,"n"],["story","tale","قصة",2,"n"],["forest","woods","غابة",2,"n"],
+["build","construct","يبني",2,"v"],
+["attempt","try","يحاول",3,"v"],["locate","find","يجد",3,"v"],["depart","leave","يغادر",3,"v"],["obtain","get","يحصل على",3,"v"],
+["automobile","car","سيارة",3,"n"],["enough","sufficient","كافٍ",3,"a"],["enemy","foe","عدو",3,"n"],["reveal","show","يكشف",3,"v"],
+["observe","watch","يراقب",3,"v"],["terrible","awful","فظيع",3,"a"],["tidy","neat","مرتّب",3,"a"]
+],["a","b","x","d","t"]);
+// part and whole: part, whole, arabic, arabic, level
+const PART=mkBank([
+["wheel","car","عجلة","سيارة",1],["page","book","صفحة","كتاب",1],["petal","flower","بتلة","زهرة",1],["branch","tree","غصن","شجرة",1],
+["wing","bird","جناح","طائر",1],["finger","hand","إصبع","يد",1],["toe","foot","إصبع القدم","قدم",1],["fin","fish","زعنفة","سمكة",1],
+["sleeve","shirt","كمّ","قميص",1],["keyboard","computer","لوحة المفاتيح","حاسوب",1],["chimney","house","مدخنة","بيت",1],["nose","face","أنف","وجه",1],
+["eraser","pencil","ممحاة","قلم رصاص",1],
+["headlight","car","مصباح أمامي","سيارة",2],["chapter","book","فصل","كتاب",2],["bark","tree","لحاء","شجرة",2],["beak","bird","منقار","طائر",2],
+["thumb","hand","إبهام","يد",2],["heel","foot","كعب","قدم",2],["gill","fish","خيشوم","سمكة",2],["collar","shirt","ياقة","قميص",2],
+["screen","computer","شاشة","حاسوب",2],["kitchen","house","مطبخ","بيت",2],["cheek","face","خدّ","وجه",2],["bristle","toothbrush","شعيرة","فرشاة أسنان",2],
+["string","guitar","وتر","جيتار",2],["player","team","لاعب","فريق",2],
+["knuckle","hand","مفصل الإصبع","يد",3],["feather","bird","ريشة","طائر",3],["chin","face","ذقن","وجه",3],["bedroom","house","غرفة نوم","بيت",3],
+["mouse","computer","فأرة","حاسوب",3],["classroom","school","فصل دراسي","مدرسة",3],["playground","school","ملعب","مدرسة",3],["engine","car","محرك","سيارة",3],
+["ankle","foot","كاحل","قدم",3],["stem","flower","ساق","زهرة",3]
+],["a","b","x","y","d"]);
+// tools and the people who use them: tool, person, arabic, arabic, level
+const TOOLJ=mkBank([
+["hammer","carpenter","مطرقة","نجّار",1],["stethoscope","doctor","سمّاعة طبيب","طبيب",1],["chalk","teacher","طباشير","معلّم",1],["camera","photographer","كاميرا","مصوّر",1],
+["oven","baker","فرن","خبّاز",1],["net","fisherman","شبكة صيد","صيّاد",1],["needle and thread","tailor","إبرة وخيط","خيّاط",1],["hose","firefighter","خرطوم","رجل إطفاء",1],
+["tractor","farmer","جرّار","مزارع",1],["paintbrush","painter","فرشاة","رسّام",1],
+["microscope","scientist","مجهر","عالِم",2],["telescope","astronomer","تلسكوب","فلكي",2],["whistle","referee","صفّارة","حكم",2],["microphone","singer","ميكروفون","مغنٍّ",2],
+["steering wheel","driver","مقود","سائق",2],
+["baton","conductor","عصا قيادة الأوركسترا","قائد أوركسترا",3],["gavel","judge","مطرقة القاضي","قاضٍ",3],["cockpit","pilot","قمرة القيادة","طيّار",3]
+],["a","b","x","y","d"]);
+// tools and what they do: tool, job, arabic, arabic, level
+const TOOLA=mkBank([
+["broom","sweep","مكنسة","يكنس",1],["scissors","cut","مقص","يقصّ",1],["key","unlock","مفتاح","يفتح القفل",1],["ruler","measure","مسطرة","يقيس",1],
+["soap","wash","صابون","يغسل",1],["towel","dry","منشفة","ينشّف",1],["ladder","climb","سلّم","يتسلّق",1],["shovel","dig","مجرفة","يحفر",1],
+["magnet","attract iron","مغناطيس","يجذب الحديد",2],["fan","cool the air","مروحة","يبرّد الهواء",2],["iron","press clothes","مكواة","يكوي الملابس",2],
+["calculator","calculate","آلة حاسبة","يحسب",2],["lamp","give light","مصباح","يعطي ضوءًا",2],
+["compass","find directions","بوصلة","يحدد الاتجاهات",3],["stapler","join papers","دباسة","يربط الأوراق",3],["funnel","pour liquid","قمع","يصبّ السوائل",3]
+],["a","b","x","y","d"]);
+// words that must never show up as a wrong choice for the key word (they could be right too)
+const AMBIG={modern:["old"],ancient:["young"],sharp:["soft","smooth"],rough:["soft"],fresh:["old"],healthy:["weak"],
+  telescope:["scientist"],"steering wheel":["pilot"],whistle:["teacher"],microphone:["teacher","conductor"],hammer:["judge"],hose:["farmer"],
+  "needle and thread":["doctor"],chalk:["painter"],camera:["scientist"],microscope:["doctor"],cockpit:["driver"],gavel:["carpenter"],baton:["teacher"],
+  kitchen:["school"]};
+function vbPick(bank,lv){const w=lv>=3?[2,3]:lv===2?[1,2]:[1];const p=bank.filter(e=>w.includes(e.d));return pick(p.length?p:bank);}
+function vbWrongs(ans,w,e,bank,both){ // wrong choices from entries at the same or an easier level, same kind of word first
+  const bad=AMBIG[w]||[],same=[],rest=[];
+  for(const o of bank){
+    if(o===e||o.d>e.d)continue;
+    for(const v of (both?[o.a,o.b]:[o.b])){
+      if(v===w||v===ans||bad.includes(v))continue;
+      (!e.t||o.t===e.t?same:rest).push(v);
+    }
+  }
+  const out=[];for(const v of [...shuffle(same),...shuffle(rest)]){if(!out.includes(v))out.push(v);if(out.length===3)break;}
+  return out;
+}
+function genOpposite(lv){
+  const e=vbPick(OPP,lv),f=Math.random()<.5;
+  const w=f?e.a:e.b,ans=f?e.b:e.a,wx=f?e.x:e.y,ax=f?e.y:e.x;
+  const q=make("verbal",`Which word is the <b>opposite</b> of <b>${w}</b>?`,null,ans,vbWrongs(ans,w,e,OPP,true),`"${w}" and "${ans}" are opposites. (${wx} / ${ax})`);
+  q.gen="genOpposite";return q;
+}
+function genSynonym(lv){
+  const e=vbPick(SYN,lv),f=Math.random()<.5;
+  const w=f?e.a:e.b,ans=f?e.b:e.a;
+  const q=make("verbal",`Which word means almost the <b>same</b> as <b>${w}</b>?`,null,ans,vbWrongs(ans,w,e,SYN,true),`"${w}" and "${ans}" mean almost the same thing. (${e.x})`);
+  q.gen="genSynonym";return q;
+}
+function genPartWhole(lv){
+  const e=vbPick(PART,lv);
+  const q=make("verbal",`${cap(an(e.a))} <b>${e.a}</b> is a part of a ____?`,null,e.b,vbWrongs(e.b,e.a,e,PART,false),`${cap(an(e.a))} ${e.a} is one part of a ${e.b}. (${e.x} / ${e.y})`);
+  q.gen="genPartWhole";return q;
+}
+function genToolJob(lv){
+  const act=Math.random()<.4,bank=act?TOOLA:TOOLJ,e=vbPick(bank,lv),wr=vbWrongs(e.b,e.a,e,bank,false);
+  const q=act?make("verbal",`${cap(an(e.a))} <b>${e.a}</b> is used to ____?`,null,e.b,wr,`${cap(an(e.a))} ${e.a} is used to ${e.b}. (${e.x} / ${e.y})`)
+             :make("verbal",`Who would use ${an(e.a)} <b>${e.a}</b>?`,null,e.b,wr,`${cap(an(e.a))} ${e.a} is used by ${an(e.b)} ${e.b}. (${e.x} / ${e.y})`);
+  q.gen="genToolJob";return q;
+}
+function genVocab(lv){return pick([genOpposite,genSynonym,genPartWhole,genToolJob])(lv);}
+/* every generator by name, so a missed question can be asked again later */
+const GENREG={genSeq,genWord,genRotate,genDice,genBlocks,genShapeEq,genFold,genGrid,genMirror,genWheel,genMatrix2,genGroup,genGrowth,genSeries,genRotMatrix,genPicAnalogy,
+  genAnalogy2,genWords,genOrder2,genStory,genReading,genOpposite,genSynonym,genPartWhole,genToolJob,genGears,genGearTeeth,genBalance,genLever,genPulley,genIncline,genFact,genStates,genCompass};
+const GENNAME=new Map(Object.keys(GENREG).map(k=>[GENREG[k],k]));
+const GENLABEL={genSeq:"Number patterns",genWord:"Word problems",genRotate:"Turning arrows",genDice:"Dice",genBlocks:"Block towers",genShapeEq:"Shape equations",genFold:"Paper folding",genGrid:"Grid moves",genMirror:"Mirror images",genWheel:"Number wheels",
+  genMatrix2:"Picture grids",genGroup:"Odd one out",genGrowth:"Growing patterns",genSeries:"Shape series",genRotMatrix:"Rotating grids",genPicAnalogy:"Picture analogies",
+  genAnalogy2:"Word analogies",genWords:"Word meanings",genOrder2:"Ordering people",genStory:"Logic stories",genReading:"Short reading",genOpposite:"Opposites",genSynonym:"Same meaning",genPartWhole:"Parts and wholes",genToolJob:"Tools and jobs",
+  genGears:"Gears",genGearTeeth:"Gear teeth",genBalance:"Seesaw balance",genLever:"Levers",genPulley:"Pulleys",genIncline:"Ramps",genFact:"Everyday science",genStates:"States of matter",genCompass:"Compass turns"};
+// questions that come from a fixed list, so "ask it again" must bring back the same item (the others get fresh numbers)
+const BANKGEN=new Set(["genFact","genStory","genReading","genAnalogy2","genWords","genOpposite","genSynonym","genPartWhole","genToolJob"]);
+
 const GENS={
   math:{1:[genSeq,genSeq,genWord,genWord,genRotate,genDice,genBlocks],
         2:[genSeq,genWord,genRotate,genDice,genBlocks,genShapeEq,genFold,genGrid,genMirror],
@@ -931,9 +1063,9 @@ const GENS={
   flex:{1:[genMatrix2,genGroup,genGrowth,genSeries],
         2:[genMatrix2,genGroup,genSeries,genPicAnalogy,genRotMatrix,genGrowth],
         3:[genRotMatrix,genMatrix2,genPicAnalogy,genSeries,genGroup]},
-  verbal:{1:[genAnalogy2,genWords,genOrder2,genStory],
-          2:[genAnalogy2,genWords,genOrder2,genStory,genReading],
-          3:[genAnalogy2,genReading,genOrder2,genStory,genReading]},
+  verbal:{1:[genAnalogy2,genWords,genOrder2,genStory,genVocab],
+          2:[genAnalogy2,genWords,genOrder2,genStory,genReading,genVocab],
+          3:[genAnalogy2,genReading,genOrder2,genStory,genReading,genVocab]},
   science:{1:[genGears,genBalance,genFact,genFact,genStates],
            2:[genGears,genBalance,genFact,genLever,genIncline,genCompass,genStates],
            3:[genGearTeeth,genLever,genPulley,genCompass,genBalance,genIncline,genFact]}
@@ -950,8 +1082,8 @@ function buildSet(plan){ // plan: array of section keys
   const used=new Set(),out=[];
   for(const s of plan){
     const lv=levelOf(s);const pool=GENS[s][lv]||GENS[s][1];
-    let q,tries=0; do{q=pick(pool)(lv);tries++;}while(used.has(q.key)&&tries<20);
-    q.lv=lv;used.add(q.key);out.push(q);
+    let q,tries=0,fn; do{fn=pick(pool);q=fn(lv);tries++;}while(used.has(q.key)&&tries<20);
+    q.gen=q.gen||GENNAME.get(fn);q.lv=lv;used.add(q.key);out.push(q);
   }
   return out;
 }
@@ -967,7 +1099,13 @@ const EXAM_PLAN=(()=>{
 
 /* ---------------- State & sync ---------------- */
 const LS="mawhiba-quest-v1";
-const blank=()=>rebuild({name:"",nameAt:0,skin:"classic",skinAt:0,resetAt:0,sessions:[],stats:{},days:{},updatedAt:0});
+const blank=()=>rebuild({name:"",nameAt:0,skin:"classic",skinAt:0,resetAt:0,sessions:[],mistakes:[],stats:{},days:{},updatedAt:0});
+function cleanM(m){ // one notebook entry, checked so a bad backup cannot break the app
+  if(!m||typeof m.id!=="string"||typeof m.gen!=="string"||!SECS[m.sec])return null;
+  const n=(v,d)=>Number.isFinite(+v)?+v:d;
+  return {id:m.id.slice(0,80),gen:m.gen.slice(0,40),sec:m.sec,lv:Math.min(3,Math.max(1,n(m.lv,1)|0)),h:typeof m.h==="string"?m.h.slice(0,12):"",
+    at:n(m.at,0),st:Math.min(2,Math.max(0,n(m.st,0)|0)),due:n(m.due,0),up:n(m.up,0),done:!!m.done,n:Math.max(1,n(m.n,1)|0)};
+}
 function rebuild(o){ // stats and days are always recomputed from sessions
   o.stats={};for(const k of SEC_KEYS)o.stats[k]={c:0,t:0};
   o.days={};
@@ -982,6 +1120,7 @@ function normalize(x){
   const b=blank();x=x||{};
   b.name=typeof x.name==="string"?x.name:"";b.nameAt=+x.nameAt||0;b.skin=SKINS[x.skin]?x.skin:"classic";b.skinAt=+x.skinAt||0;b.resetAt=+x.resetAt||0;b.updatedAt=+x.updatedAt||0;
   b.sessions=(Array.isArray(x.sessions)?x.sessions:[]).filter(s=>s&&typeof s.at==="number"&&s.at>b.resetAt).sort((a,c)=>a.at-c.at).slice(-1000);
+  b.mistakes=(Array.isArray(x.mistakes)?x.mistakes:[]).map(cleanM).filter(m=>m&&m.at>b.resetAt).slice(-300);
   return rebuild(b);
 }
 function merge(a,b){ // combine two copies without losing anyone's rounds
@@ -989,12 +1128,15 @@ function merge(a,b){ // combine two copies without losing anyone's rounds
   o.resetAt=Math.max(a.resetAt||0,b.resetAt||0);
   const seen=new Map();for(const s of [...a.sessions,...b.sessions])if(s.at>o.resetAt)seen.set(s.at+"|"+s.mode+"|"+s.t,s);
   o.sessions=[...seen.values()].sort((x,y)=>x.at-y.at).slice(-1000);
+  const mm=new Map(); // notebook: the most recently updated copy of each entry wins
+  for(const m of [...(a.mistakes||[]),...(b.mistakes||[])]){if(m.at<=o.resetAt)continue;const p=mm.get(m.id);if(!p||(m.up||0)>(p.up||0))mm.set(m.id,m);}
+  o.mistakes=[...mm.values()].sort((x,y)=>x.at-y.at).slice(-300);
   const nb=(b.nameAt||0)>(a.nameAt||0)?b:a;o.name=nb.name;o.nameAt=nb.nameAt||0;const sb=(b.skinAt||0)>(a.skinAt||0)?b:a;o.skin=sb.skin||"classic";o.skinAt=sb.skinAt||0;
   o.updatedAt=Math.max(a.updatedAt||0,b.updatedAt||0);
   return rebuild(o);
 }
-const sig=o=>o.sessions.length+"|"+(o.sessions.length?o.sessions[o.sessions.length-1].at:0)+"|"+o.resetAt+"|"+o.nameAt+"|"+(o.skinAt||0);
-const plain=o=>({name:o.name,nameAt:o.nameAt,skin:o.skin||"classic",skinAt:o.skinAt||0,resetAt:o.resetAt,sessions:o.sessions,updatedAt:o.updatedAt});
+const sig=o=>o.sessions.length+"|"+(o.sessions.length?o.sessions[o.sessions.length-1].at:0)+"|"+o.resetAt+"|"+o.nameAt+"|"+(o.skinAt||0)+"|"+o.mistakes.length+"|"+o.mistakes.reduce((t,m)=>Math.max(t,m.up||0),0);
+const plain=o=>({name:o.name,nameAt:o.nameAt,skin:o.skin||"classic",skinAt:o.skinAt||0,resetAt:o.resetAt,sessions:o.sessions,mistakes:o.mistakes,updatedAt:o.updatedAt});
 let S=blank();
 try{const raw=localStorage.getItem(LS);if(raw)S=normalize(JSON.parse(raw));}catch(e){}
 
@@ -1056,7 +1198,33 @@ function streak(){
 const totalCorrect=()=>SEC_KEYS.reduce((a,k)=>a+S.stats[k].c,0);
 const totalQ=()=>SEC_KEYS.reduce((a,k)=>a+S.stats[k].t,0);
 const acc=k=>S.stats[k].t?Math.round(100*S.stats[k].c/S.stats[k].t):null;
-function weakest(){let w=null,lo=101;for(const k of SEC_KEYS){const a=acc(k);if(a!==null&&S.stats[k].t>=5&&a<lo){lo=a;w=k;}}return w;}
+function recentAcc(sec,o){ // accuracy over the last 24 answers in an area (needs at least 8)
+  o=o||S;let c=0,t=0;
+  for(let i=o.sessions.length-1;i>=0&&t<24;i--){const b=o.sessions[i].by&&o.sessions[i].by[sec];if(b){c+=b[0];t+=b[1];}}
+  return t>=8?c/t:null;
+}
+function weakArea(){ // lowest level first, then lowest recent accuracy
+  let w=null,lo=1e9;
+  for(const k of SEC_KEYS){const a=recentAcc(k);if(a===null)continue;const s=(levelOf(k)-1)*100+a*100;if(s<lo){lo=s;w=k;}}
+  return w;
+}
+function missionPlan(){
+  const ph=phase(),weak=weakArea();
+  if(!weak){ // not enough answers yet: follow the phase only
+    if(ph.n===4)return {weak:null,plan:shuffle([...SEC_KEYS,...SEC_KEYS,"math","flex"]).slice(0,10)};
+    const others=SEC_KEYS.filter(k=>!ph.focus.includes(k)),pool=others.length?others:SEC_KEYS,p=[];
+    for(let i=0;i<6;i++)p.push(ph.focus[i%ph.focus.length]);
+    for(let i=0;i<4;i++)p.push(pool[i%pool.length]);
+    return {weak:null,plan:shuffle(p)};
+  }
+  if(ph.n===4)return {weak,plan:shuffle([...SEC_KEYS,...SEC_KEYS,weak,weak])}; // 2 of each area plus 2 extra from the hardest
+  const pool=[...SEC_KEYS.filter(k=>!ph.focus.includes(k)),...ph.focus].filter(k=>k!==weak); // the rest: other phases' areas first, so old skills stay fresh
+  const wn=ph.focus.includes(weak)?2:3,fn=4,on=10-fn-wn,p=[];
+  for(let i=0;i<fn;i++)p.push(ph.focus[i%ph.focus.length]);
+  for(let i=0;i<wn;i++)p.push(weak);
+  for(let i=0;i<on;i++)p.push(pool[i%pool.length]);
+  return {weak,plan:shuffle(p)};
+}
 const BADGES=[
   {i:"🌱",n:"First quiz",ok:()=>S.sessions.length>=1},
   {i:"🔥",n:"3-day streak",ok:()=>bestStreak()>=3},
@@ -1067,16 +1235,65 @@ const BADGES=[
   {i:"⏱️",n:"Mock test done",ok:()=>S.sessions.some(s=>s.mode==="mock")},
   {i:"🎓",n:"Full test done",ok:()=>S.sessions.some(s=>s.mode==="exam")},
   {i:"🚩",n:"Level 3 reached",ok:()=>SEC_KEYS.some(k=>levelOf(k)>=3)},
-  {i:"🏆",n:"Mock 80%+",ok:()=>S.sessions.some(s=>s.mode==="mock"&&s.c/s.t>=.8)}
+  {i:"🏆",n:"Mock 80%+",ok:()=>S.sessions.some(s=>s.mode==="mock"&&s.c/s.t>=.8)},
+  {i:"📒",n:"Mistake fixed for good",ok:()=>S.mistakes.some(m=>m.done)},
+  {i:"🔤",n:"Word Coach quiz",ok:()=>S.sessions.some(s=>s.mode==="words")}
 ];
+/* ---------------- Mistakes notebook ----------------
+   A wrong answer is filed once per idea. It comes back 2 days later with fresh numbers
+   (the exact same item for fixed-list questions). Right again: it returns 5 days after that;
+   right a second time and it is fixed for good. Wrong on a review: back tomorrow, starting over. */
+function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36);}
+function dayStart(n){const d=midnight(new Date());d.setDate(d.getDate()+n);return d.getTime();}
+const mistakeId=q=>BANKGEN.has(q.gen)?q.gen+":"+hash(q.key):q.gen;
+function noteResults(list,ans,mode){
+  const out={added:0,fixed:0,mastered:0,again:0},now=Date.now(),seen=new Set();
+  list.forEach((q,i)=>{
+    if(!q.gen||!GENREG[q.gen])return;
+    const a=ans[i];if(a==null)return; // not answered (time ran out): nothing to learn from it
+    const ok=a===q.answer;
+    if(mode==="review"&&q.rv){
+      const m=S.mistakes.find(x=>x.id===q.rv);if(!m)return;
+      if(ok){if(m.st>=1){m.done=true;m.st=2;out.mastered++;}else{m.st=1;m.due=dayStart(5);out.fixed++;}}
+      else{m.st=0;m.done=false;m.due=dayStart(1);m.n=(m.n||1)+1;out.again++;}
+      m.up=now;return;
+    }
+    if(ok)return;
+    const id=mistakeId(q);let m=S.mistakes.find(x=>x.id===id);
+    if(m){m.st=0;m.done=false;m.due=dayStart(2);m.n=(m.n||1)+1;m.lv=q.lv||m.lv;m.up=now;}
+    else{m={id,gen:q.gen,sec:q.sec,lv:q.lv||1,h:BANKGEN.has(q.gen)?hash(q.key):"",at:now,st:0,due:dayStart(2),up:now,done:false,n:1};S.mistakes.push(m);}
+    if(!seen.has(id)){seen.add(id);out.added++;}
+  });
+  if(S.mistakes.length>300){const keep=S.mistakes.filter(m=>!m.done);const done=S.mistakes.filter(m=>m.done).slice(-(300-keep.length));S.mistakes=[...keep,...done].sort((x,y)=>x.at-y.at);}
+  return out;
+}
+function dueMistakes(now){now=now||Date.now();return S.mistakes.filter(m=>!m.done&&m.due<=now).sort((a,b)=>a.due-b.due);}
+function nbInfo(){
+  const now=Date.now(),act=S.mistakes.filter(m=>!m.done),due=act.filter(m=>m.due<=now);
+  const next=act.filter(m=>m.due>now).sort((a,b)=>a.due-b.due)[0];
+  return {act,due,fixed:S.mistakes.length-act.length,next};
+}
+function buildReview(){
+  const out=[],used=new Set();
+  for(const m of dueMistakes()){
+    if(out.length>=8)break;
+    const fn=GENREG[m.gen];if(!fn)continue;
+    let q=null;
+    if(m.h){for(let t=0;t<800;t++){const c=fn(m.lv);if(c.key&&hash(c.key)===m.h){q=c;break;}}}
+    else q=fn(m.lv);
+    if(!q||used.has(q.key))continue;
+    q.gen=m.gen;q.lv=m.lv;q.rv=m.id;used.add(q.key);out.push(q);
+  }
+  return shuffle(out);
+}
 function bestStreak(){const ks=Object.keys(S.days).filter(k=>S.days[k].q>0).sort();let best=0,cur=0,prev=null;for(const k of ks){const d=new Date(k+"T00:00:00");if(prev&&daysBetween(prev,d)===1)cur++;else cur=1;best=Math.max(best,cur);prev=d;}return best;}
 
 /* ---------------- Routing ---------------- */
-let view="today", Q=null, timerInt=null;
+let view="today", Q=null, W=null, timerInt=null;
 const NAV=[["today","🏠","Today"],["practice","🧩","Practice"],["progress","📈","Progress"],["guide","🧭","Guide"]];
-function go(v){view=v;Q=null;clearInterval(timerInt);render();window.scrollTo(0,0);}
+function go(v){view=v;Q=null;W=null;clearInterval(timerInt);render();window.scrollTo(0,0);}
 function renderNav(){
-  $("#nav").innerHTML=NAV.map(([k,i,l])=>`<button data-go="${k}" class="${view===k||(Q&&k==="practice"&&false)?"on":""}" aria-label="${l}"><span class="i">${i}</span>${l}</button>`).join("");
+  $("#nav").innerHTML=NAV.map(([k,i,l])=>`<button data-go="${k}" class="${view===k||(view==="words"&&k==="practice")?"on":""}" aria-label="${l}"><span class="i">${i}</span>${l}</button>`).join("");
   document.querySelector("nav").style.display=Q?"none":"block";
 }
 function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);}
@@ -1087,6 +1304,18 @@ function top(){
 }
 
 /* ---------------- Views ---------------- */
+function fmtDay(ts){const n=daysBetween(new Date(),new Date(ts));return n<=0?"today":n===1?"tomorrow":new Date(ts).toLocaleDateString(undefined,{weekday:"long"});}
+function nbCard(compact){ // compact: only on Today, and only once something is in the notebook
+  const nb=nbInfo();
+  if(compact&&!nb.act.length)return "";
+  const d=nb.due.length;
+  const line=d?`<b>${d}</b> question${d>1?"s are":" is"} ready for a second look.`
+    :nb.act.length?`All caught up. ${nb.act.length} more ${nb.act.length>1?"are":"is"} waiting for their turn${nb.next?`, the next one ${fmtDay(nb.next.due)}`:""}.`
+    :"Nothing here yet. When he gets a question wrong it is filed here and comes back 2 days later, then once more 5 days after that.";
+  return `<section class="card nb"><h3 style="font-size:1.2rem;margin-bottom:4px">📒 Mistakes notebook</h3>
+    <p style="margin:0 0 10px;color:var(--ink-soft)">${line}${nb.fixed?` <span class="pill" style="margin-left:4px">${nb.fixed} fixed for good</span>`:""}</p>
+    ${d?`<button class="btn" data-act="review">Review ${Math.min(d,8)} now</button>`:""}</section>`;
+}
 function vToday(){
   const dl=daysLeft(),ph=phase(),tk=todayKey(),td=S.days[tk];
   const name=S.name||"Champion";
@@ -1106,7 +1335,7 @@ function vToday(){
   }
   stones+=`<div class="stone flag" title="Test day">🏁</div>`;
   const missionDone=td&&td.mission;
-  const w=weakest();
+  const w=weakArea(),mw=missionPlan().weak;
   return `${top()}
   <section class="card hello">
     <h1>Hi ${esc(name)}!</h1>
@@ -1116,10 +1345,11 @@ function vToday(){
     <div>
       <span class="tag">Phase ${ph.n} · ${ph.name}</span>
       <h2>${missionDone?"Mission complete ★":"Today's mission"}</h2>
-      <p>${missionDone?"Great work today. You can play extra rounds in Practice.":`10 questions, about 15 minutes. Focus: ${ph.focus.map(f=>SECS[f].name).join(" + ")}.`}</p>
+      <p>${missionDone?"Great work today. You can play extra rounds in Practice.":`10 questions, about 15 minutes. Focus: ${ph.focus.map(f=>SECS[f].name).join(" + ")}${mw?`, with extra ${SECS[mw].name}`:""}.`}</p>
     </div>
     <button class="btn" data-act="mission">${missionDone?"Play again":"Start mission"}</button>
   </section>
+  ${nbCard(true)}
   <div class="stats">
     <div class="stat"><b>${td?td.q:0}</b><span>questions today</span></div>
     <div class="stat"><b>${totalQ()?Math.round(100*totalCorrect()/totalQ()):0}%</b><span>correct overall</span></div>
@@ -1130,7 +1360,7 @@ function vToday(){
     <div class="trail">${stones}</div>
     <div class="legend"><span><i style="background:var(--sun)"></i>Mission done</span><span><i style="background:var(--mint-soft);border:2px solid var(--mint)"></i>Some practice</span><span><i style="border:3px solid var(--berry)"></i>Today</span></div>
   </section>
-  ${w?`<section class="card"><b>Parent tip:</b> ${SECS[w].name} is the trickiest area so far (${acc(w)}%). Try a practice round there today.<div style="margin-top:10px"><button class="btn ghost" data-sec="${w}">Practise ${SECS[w].name}</button></div></section>`:""}
+  ${w?`<section class="card"><b>Parent tip:</b> ${SECS[w].name} needs the most practice right now (level ${levelOf(w)}, ${Math.round(100*recentAcc(w))}% on his latest answers). Today's mission leans on it, and a round in Practice would help too.<div style="margin-top:10px"><button class="btn ghost" data-sec="${w}">Practise ${SECS[w].name}</button></div></section>`:""}
   <section class="card"><b>Coach tip for this phase:</b> <span style="color:var(--ink-soft)">${ph.tip}</span></section>`;
 }
 function vPractice(){
@@ -1139,6 +1369,13 @@ function vPractice(){
   <p style="color:var(--ink-soft);margin:.3rem 0 14px">Pick an area for 10 questions with explanations after each one.</p>
   <div class="secs">${SEC_KEYS.map(k=>{const a=acc(k);return `<button class="sec" data-sec="${k}"><div class="ico ${SECS[k].cls}">${SECS[k].ico}</div><h3>${SECS[k].name}</h3><p>${SECS[k].desc}</p><div class="acc">${a===null?"Not tried yet":`${a}% correct · ${S.stats[k].t} answered`}</div><div class="lvtag">Level ${levelOf(k)} · ${LVNAME[levelOf(k)]}</div></button>`;}).join("")}</div>
   <p style="color:var(--ink-soft);font-size:.86rem;margin:10px 0 0">The level rises on its own when he keeps getting an area right, and eases back if it gets too hard.</p>
+  <h2 class="sh">Word Coach</h2>
+  <section class="card">
+    <p style="margin:0 0 12px;color:var(--ink-soft)">Flashcards with the Arabic meaning, then a short quiz. Opposites, words that mean the same, parts and wholes, tools and jobs.</p>
+    <button class="btn" data-go="words">Open Word Coach</button>
+  </section>
+  <div style="height:16px"></div>
+  ${nbCard(false)}
   <h2 class="sh">Mock test</h2>
   <section class="card">
     <p style="margin:0 0 12px;color:var(--ink-soft)">20 mixed questions in 25 minutes, like the real screen test. No hints until the end, then a full review.</p>
@@ -1151,13 +1388,21 @@ function vPractice(){
     <button class="btn" data-act="exam">Start full test</button>
   </section>`;
 }
+function nbBreakdown(){ // which kinds of question keep going wrong
+  const g={};
+  for(const m of S.mistakes){if(m.done)continue;const o=g[m.gen]=g[m.gen]||{gen:m.gen,sec:m.sec,items:0,n:0,due:Infinity};o.items++;o.n+=m.n||1;o.due=Math.min(o.due,m.due);}
+  const list=Object.values(g).sort((a,b)=>b.n-a.n||a.due-b.due).slice(0,8);
+  if(!list.length)return `<section class="card"><h3 style="font-size:1.2rem">Where mistakes happen</h3><p style="margin:.3rem 0 0;color:var(--ink-soft)">Nothing waiting in the notebook. Question types he misses will be listed here.</p></section>`;
+  const now=Date.now();
+  return `<section class="card"><h3 style="font-size:1.2rem;margin-bottom:6px">Where mistakes happen</h3><div class="hist">${list.map(o=>`<div><span>${SECS[o.sec].ico} ${GENLABEL[o.gen]||o.gen}${o.items>1?` (${o.items})`:""}</span><b>missed ${o.n}× · ${o.due<=now?"review now":"back "+fmtDay(o.due)}</b></div>`).join("")}</div></section>`;
+}
 function vProgress(){
   // last 14 days chart
   const days=[];for(let i=13;i>=0;i--){const d=midnight(new Date());d.setDate(d.getDate()-i);const r=S.days[keyOf(d)]||{q:0,c:0};days.push({d,q:r.q||0,c:r.c||0});}
   const maxQ=Math.max(10,...days.map(x=>x.q));const W=560,H=170,bw=W/14;
   let bars="";days.forEach((x,i)=>{const h=(x.q/maxQ)*(H-40),hc=(x.c/maxQ)*(H-40);bars+=`<rect x="${i*bw+6}" y="${H-24-h}" width="${bw-12}" height="${h}" rx="5" fill="#2F7FD8" fill-opacity=".25"/><rect x="${i*bw+6}" y="${H-24-hc}" width="${bw-12}" height="${hc}" rx="5" fill="#2BA57F"/><text x="${i*bw+bw/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${INK}" fill-opacity=".7">${x.d.getDate()}</text>`;});
   const rows=SEC_KEYS.map(k=>{const a=acc(k);const col={math:"#2F7FD8",flex:"#7B5CD6",verbal:"#E2457A",science:"#2BA57F"}[k];return `<div class="row"><span>${SECS[k].ico} ${SECS[k].name.split(" ")[0]}</span><div class="track"><div style="width:${a||0}%;background:${col}"></div></div><b>${a===null?"–":a+"%"}</b></div>`;}).join("");
-  const hist=S.sessions.slice(-12).reverse().map(s=>`<div><span>${new Date(s.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${s.mode==="exam"?"Full test (64 Q)":s.mode==="mock"?"Mock test":s.mode==="mission"?"Mission":SECS[s.sec]?SECS[s.sec].name:"Practice"}</span><b>${s.c}/${s.t} · ${Math.max(1,Math.round(s.secs/60))} min</b></div>`).join("");
+  const hist=S.sessions.slice(-12).reverse().map(s=>`<div><span>${new Date(s.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${s.mode==="exam"?"Full test (64 Q)":s.mode==="mock"?"Mock test":s.mode==="mission"?"Mission":s.mode==="review"?"Mistakes review":s.mode==="words"?"Word Coach quiz":SECS[s.sec]?SECS[s.sec].name:"Practice"}</span><b>${s.c}/${s.t} · ${Math.max(1,Math.round(s.secs/60))} min</b></div>`).join("");
   return `${top()}
   <h1 style="font-size:2rem;margin-bottom:12px">Progress</h1>
   <div class="stats" style="margin-bottom:16px">
@@ -1166,6 +1411,7 @@ function vProgress(){
     <div class="stat"><b>${Math.round(S.sessions.reduce((a,s)=>a+s.secs,0)/60)}</b><span>minutes practised</span></div>
   </div>
   <section class="card"><h3 style="font-size:1.2rem">Accuracy by area</h3><div class="rows">${rows}</div></section>
+  ${nbBreakdown()}
   <section class="card"><h3 style="font-size:1.2rem">Last 14 days</h3><p style="margin:.2rem 0 6px;font-size:.85rem;color:var(--ink-soft)">Green is correct answers; the pale bar is all questions answered.</p><div class="chartwrap">${svg(W,H,bars,"daily practice chart","vis")}</div></section>
   <section class="card"><h3 style="font-size:1.2rem;margin-bottom:10px">Badges</h3><div class="badges">${BADGES.map(b=>`<div class="badge ${b.ok()?"":"off"}"><i>${b.i}</i>${b.n}</div>`).join("")}</div></section>
   <section class="card"><h3 style="font-size:1.2rem;margin-bottom:6px">Recent sessions</h3><div class="hist">${hist||'<p style="color:var(--ink-soft);margin:0">No sessions yet. Start today\'s mission to see results here.</p>'}</div></section>
@@ -1187,7 +1433,12 @@ function vGuide(){
   <p>These follow the four areas in your booking notes. All questions here are original practice items in the same style, not real test questions.</p></section>
   <section class="card"><h3>The 40-day plan</h3>
   ${PHASES.map(p=>`<div class="phase ${p.n===ph.n?"now":""}"><div class="n">${p.n}</div><div><b>${p.name}</b> <span style="color:var(--ink-soft);font-size:.85rem">${p.range}${p.n===ph.n?" · now":""}</span><p style="margin:.2rem 0 0">${p.tip}</p></div></div>`).join("")}
-  <p>The daily mission follows this plan on its own: 6 questions from the current focus and 4 mixed, so earlier skills stay fresh.</p></section>
+  <p>The daily mission follows this plan on its own: about 4 questions from the current focus, 3 from the area he finds hardest right now (lowest level, then lowest recent accuracy), and 3 mixed so earlier skills stay fresh. Until he has answered a few questions in each area, it simply follows the phase.</p></section>
+  <section class="card"><h3>Mistakes notebook</h3>
+  <p>Every question he gets wrong is filed in the notebook, once per idea. It comes back <b>2 days later</b> with fresh numbers (the exact same question for word and fact items). If he gets it right it returns <b>5 days after that</b>, and a second right answer fixes it for good. A wrong answer on a review sends it back to tomorrow.</p>
+  <p>Today shows a card when reviews are ready, and Progress lists the kinds of question that keep going wrong. Review rounds do not change his levels or his star count, because he has already seen the explanation.</p></section>
+  <section class="card"><h3>Word Coach</h3>
+  <p>Open it from Practice. Flip a card to see the Arabic meaning, tap "Got it" or "Still learning", then take a 10-question quiz on the same topic. The four topics are opposites, words that mean the same, parts and wholes, and tools and jobs. These are the word relationships the English verbal questions are built on. Word Coach quizzes are tracked on their own and do not change his levels.</p></section>
   <section class="card"><h3>What the real test looks like</h3>
   <p>Level 1 is taken on a computer: <b>64 questions in 12 timed parts, about 103 minutes</b> — eight parts of 4 questions and four parts of 8.</p>
   <p>The part that surprises children most: <b>each part has its own timer, and once it ends that part closes for good.</b> You cannot go back to it. "Start full test" in Practice rehearses exactly that.</p>
@@ -1206,12 +1457,31 @@ function vGuide(){
 }
 
 /* ---------------- Quiz ---------------- */
+const WCATS={
+  opp:{name:"Opposites",ico:"↔️",ex:"hot ↔ cold",gen:genOpposite},
+  syn:{name:"Same meaning",ico:"🟰",ex:"big = large",gen:genSynonym},
+  part:{name:"Parts and wholes",ico:"🧩",ex:"wheel → car",gen:genPartWhole},
+  tool:{name:"Tools and jobs",ico:"🛠️",ex:"hammer → carpenter",gen:genToolJob}
+};
+function buildWords(cat){ // 10 vocabulary questions at his Verbal level
+  const lv=levelOf("verbal"),keys=WCATS[cat]?[cat]:Object.keys(WCATS),out=[],used=new Set();
+  for(let t=0;out.length<10&&t<300;t++){
+    const q=WCATS[keys[out.length%keys.length]].gen(lv);
+    if(used.has(q.key))continue;
+    used.add(q.key);q.lv=lv;out.push(q);
+  }
+  return out;
+}
 function startQuiz(mode,sec){
   let plan;
+  if(mode==="review"||mode==="words"){
+    const list=mode==="review"?buildReview():buildWords(sec);
+    if(!list.length){toast("Nothing to review right now");return;}
+    Q={mode,sec:null,cat:mode==="words"?sec:null,list,i:0,ans:[],struck:list.map(()=>new Set()),picked:null,locked:false,start:Date.now(),end:null};
+    render();window.scrollTo(0,0);return;
+  }
   if(mode==="mission"){
-    const ph=phase();const others=SEC_KEYS.filter(k=>!ph.focus.includes(k));
-    if(ph.n===4) plan=shuffle([...SEC_KEYS,...SEC_KEYS,"math","flex"]).slice(0,10);
-    else{const f=[];for(let i=0;i<6;i++)f.push(ph.focus[i%ph.focus.length]);const o=[];for(let i=0;i<4;i++)o.push((others.length?others:SEC_KEYS)[i%(others.length||4)]);plan=shuffle([...f,...o]);}
+    plan=missionPlan().plan;
   } else if(mode==="mock"){plan=shuffle([...Array(5).fill("math"),...Array(5).fill("flex"),...Array(5).fill("verbal"),...Array(5).fill("science")]);}
   else plan=Array(10).fill(sec);
   if(mode==="exam"){
@@ -1249,11 +1519,12 @@ function finishExam(){
   let c=0;const by={};
   list.forEach((q,i)=>{const ok=ans[i]===q.answer;if(ok)c++;by[q.sec]=by[q.sec]||[0,0];by[q.sec][1]++;if(ok)by[q.sec][0]++;});
   const before=BADGES.filter(b=>b.ok()).length;
+  const nr=noteResults(list,ans,"exam");
   S.sessions.push({at:Date.now(),mode:"exam",sec:null,c,t:list.length,secs:secsTaken,by});
   if(S.sessions.length>1000)S.sessions=S.sessions.slice(-1000);
   save();
   Q.list=list;Q.ans=ans;
-  Q.result={c,t:list.length,by,secs:secsTaken,newBadges:BADGES.filter(b=>b.ok()).length-before};
+  Q.result={c,t:list.length,by,secs:secsTaken,nr,newBadges:BADGES.filter(b=>b.ok()).length-before};
   Q.done=true;render();window.scrollTo(0,0);
 }
 function vExam(){
@@ -1300,7 +1571,7 @@ function vQuiz(){
   }).join("");
   let fb="";
   if(Q.locked&&!mock){const ok=Q.picked===q.answer;fb=`<div class="fb ${ok?"ok":"no"} pop"><b>${ok?pick((SKINS[S.skin]||SKINS.classic).praise):(SKINS[S.skin]||SKINS.classic).oops}</b> ${ok?"":`The answer is ${letters[q.answer]}. `}${q.explain}</div>`;}
-  const title=Q.mode==="exam"?"Full test":Q.mode==="mock"?"Mock test":Q.mode==="mission"?"Today's mission":SECS[Q.sec].name;
+  const title=Q.mode==="exam"?"Full test":Q.mode==="mock"?"Mock test":Q.mode==="mission"?"Today's mission":Q.mode==="review"?"Mistakes notebook · second look":Q.mode==="words"?"Word Coach quiz":SECS[Q.sec].name;
   return `<div class="qhead"><button class="btn ghost" data-act="quit" style="padding:8px 14px">✕ Stop</button><div class="bar" aria-label="progress"><div style="width:${100*Q.i/n}%"></div></div><span class="pill">${Q.i+1}/${n}</span>${mock?`<span class="timer" id="timer">${fmt(Q.end-Date.now())}</span>`:""}</div>
   <div style="font-family:'Baloo 2';font-weight:700;color:var(--ink-soft);margin-bottom:8px">${title}</div>
   <section class="card qcard">
@@ -1322,11 +1593,21 @@ function finish(){
   let c=0;const by={};
   Q.list.forEach((q,i)=>{const ok=Q.ans[i]===q.answer;if(ok)c++;by[q.sec]=by[q.sec]||[0,0];by[q.sec][1]++;if(ok)by[q.sec][0]++;});
   const before=BADGES.filter(b=>b.ok()).length;
-  S.sessions.push({at:Date.now(),mode:Q.mode,sec:Q.sec||null,c,t:Q.list.length,secs,by});
+  const nr=noteResults(Q.list,Q.ans,Q.mode);
+  const own=Q.mode==="review"||Q.mode==="words"; // these rounds are tracked on their own, so levels and stars stay honest
+  S.sessions.push({at:Date.now(),mode:Q.mode,sec:Q.sec||null,c,t:Q.list.length,secs,by:own?{}:by});
   if(S.sessions.length>1000)S.sessions=S.sessions.slice(-1000);
   save();
-  Q.result={c,t:Q.list.length,by,secs,newBadges:BADGES.filter(b=>b.ok()).length-before};
+  Q.result={c,t:Q.list.length,by,secs,nr,own,newBadges:BADGES.filter(b=>b.ok()).length-before};
   Q.done=true;render();window.scrollTo(0,0);
+}
+function nbNote(r){ // what happened to the notebook in this round
+  const n=r.nr;if(!n)return "";const l=[];
+  if(n.mastered)l.push(`🌟 ${n.mastered} fixed for good.`);
+  if(n.fixed)l.push(`✅ ${n.fixed} right this time. ${n.fixed>1?"They come":"It comes"} back once more in 5 days.`);
+  if(n.again)l.push(`↩️ ${n.again} will come back tomorrow for another try.`);
+  if(n.added)l.push(`📒 ${n.added} added to the notebook. ${n.added>1?"They come":"It comes"} back in 2 days.`);
+  return l.length?`<section class="card"><h3 style="font-size:1.2rem;margin-bottom:6px">Mistakes notebook</h3>${l.map(x=>`<p style="margin:.2rem 0">${x}</p>`).join("")}</section>`:"";
 }
 function vResult(){
   const r=Q.result,pct=Math.round(100*r.c/r.t);
@@ -1337,13 +1618,58 @@ function vResult(){
   return `<section class="card" style="text-align:center">
     <div class="big pop">${r.c}/${r.t}</div>
     <h2 style="font-size:1.6rem;margin-top:6px">${msg}</h2>
-    <p style="color:var(--ink-soft);margin:.3rem 0 0">${Math.max(1,Math.round(r.secs/60))} minutes · +${r.c} ⭐${Q.mode==="mission"?" · Today's stone is lit ★":""}${r.newBadges>0?" · New badge unlocked!":""}</p>
+    <p style="color:var(--ink-soft);margin:.3rem 0 0">${Math.max(1,Math.round(r.secs/60))} minutes${r.own?"":` · +${r.c} ⭐`}${Q.mode==="mission"?" · Today's stone is lit ★":""}${r.newBadges>0?" · New badge unlocked!":""}</p>
   </section>
   <section class="card"><h3 style="font-size:1.2rem">By area</h3><div class="rows">${rows}</div></section>
+  ${nbNote(r)}
   ${review?`<section class="card"><h3 style="font-size:1.2rem;margin-bottom:6px">${Q.mode==="mock"||Q.mode==="exam"?"Full review":"Let's look at the tricky ones"}</h3>${review}</section>`:""}
   <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-act="home">Back to Today</button><button class="btn ghost" data-act="again">Another round</button></div>`;
 }
 
+/* ---------------- Word Coach flashcards ---------------- */
+function wcCard(cat){
+  const lv=levelOf("verbal"),maxd=Math.max(2,lv),f=Math.random()<.5,ok=o=>o.d<=maxd;
+  if(cat==="opp"){const e=pick(OPP.filter(ok));return {cat,en:f?e.a:e.b,ar:f?e.x:e.y,line:`Opposite: <b>${f?e.b:e.a}</b>`,lineAr:f?e.y:e.x};}
+  if(cat==="syn"){const e=pick(SYN.filter(ok));return {cat,en:f?e.a:e.b,ar:e.x,line:`Same meaning: <b>${f?e.b:e.a}</b>`,lineAr:""};}
+  if(cat==="part"){const e=pick(PART.filter(ok));return {cat,en:e.a,ar:e.x,line:`${cap(an(e.a))} ${e.a} is part of a <b>${e.b}</b>`,lineAr:e.y};}
+  if(Math.random()<.4){const e=pick(TOOLA.filter(ok));return {cat:"tool",en:e.a,ar:e.x,line:`${cap(an(e.a))} ${e.a} is used to <b>${e.b}</b>`,lineAr:e.y};}
+  const e=pick(TOOLJ.filter(ok));return {cat:"tool",en:e.a,ar:e.x,line:`${cap(an(e.a))} ${e.a} is used by ${an(e.b)} <b>${e.b}</b>`,lineAr:e.y};
+}
+function wNew(cat){
+  const keys=WCATS[cat]?[cat]:Object.keys(WCATS),deck=[],seen=new Set();
+  for(let t=0;deck.length<10&&t<300;t++){const c=wcCard(keys[deck.length%keys.length]);if(seen.has(c.en))continue;seen.add(c.en);deck.push(c);}
+  return {cat,deck,i:0,flip:false,knew:0,done:false};
+}
+function vWords(){
+  if(!W)W={cat:null};
+  const head=`${top()}<h1 style="font-size:2rem;margin-bottom:6px">Word Coach</h1>`;
+  if(!W.cat){
+    return `${head}<p style="color:var(--ink-soft);margin:.2rem 0 14px">Pick a topic. Flip each card to see the Arabic meaning, then say if you knew it. 10 cards a round.</p>
+    <div class="secs">${Object.keys(WCATS).map(k=>`<button class="sec" data-wc="${k}"><div class="ico c-verbal">${WCATS[k].ico}</div><h3>${WCATS[k].name}</h3><p>${WCATS[k].ex}</p></button>`).join("")}</div>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-wc="mix">Mixed deck</button><button class="btn ghost" data-go="practice">← Practice</button></div>`;
+  }
+  if(W.done){
+    const n=W.deck.filter(c=>!c.re).length;
+    return `${head}<section class="card" style="text-align:center">
+      <div class="big pop">${W.knew}/${n}</div>
+      <h2 style="font-size:1.5rem;margin-top:6px">${W.knew===n?"You knew them all!":W.knew>=n*.7?"Great round!":"Good start, they stick with practice."}</h2>
+      <p style="color:var(--ink-soft);margin:.3rem 0 0">Cards you knew on the first try. The others came back at the end of the deck.</p>
+    </section>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn mint" data-act="wc-quiz">Quiz me on these words</button><button class="btn" data-act="wc-new">New deck</button><button class="btn ghost" data-act="wc-topics">Other topics</button></div>`;
+  }
+  const c=W.deck[W.i],total=W.deck.length;
+  const label=c.cat==="mix"?"":(WCATS[c.cat]||{}).name||"";
+  return `${head}
+  <div class="qhead"><div class="bar" aria-label="progress"><div style="width:${100*W.i/total}%"></div></div><span class="pill">${W.i+1}/${total}</span></div>
+  <button class="card fcard" data-act="wc-flip" aria-label="${W.flip?"Meaning shown":"Tap to see the meaning"}">
+    <span class="cat">${esc(label)}${c.re?" · again":""}</span>
+    <span class="en">${esc(c.en)}</span>
+    ${W.flip?`<span class="ar" dir="rtl" lang="ar">${esc(c.ar)}</span><span class="rel">${c.line}${c.lineAr?` <span dir="rtl" lang="ar" style="white-space:nowrap">(${esc(c.lineAr)})</span>`:""}</span>`:`<span class="rel">Tap to see the meaning</span>`}
+  </button>
+  <div class="wcbtns" style="margin-top:12px">${W.flip?`<button class="btn ghost" data-act="wc-again">↻ Still learning</button><button class="btn mint" data-act="wc-got">✓ Got it</button>`:`<button class="btn ghost" data-act="wc-say" aria-label="Hear the word">🔊 Hear it</button>`}</div>
+  ${W.flip?`<div class="wcbtns" style="margin-top:10px"><button class="btn ghost" data-act="wc-say" aria-label="Hear the word" style="padding:8px 14px">🔊 Hear it</button></div>`:""}
+  <p style="margin-top:14px"><button class="btn ghost" data-act="wc-topics" style="padding:8px 14px">← Topics</button></p>`;
+}
 function vLogin(){
   if(!FB.ready)return `<section class="card" style="margin-top:20vh;text-align:center"><h2>Loading…</h2></section>`;
   return `<div class="top"><div class="brand"><span class="dot">✦</span>Mawhiba Quest</div></div>
@@ -1364,13 +1690,14 @@ function render(){
   const app=$("#app");
   if(SYNC_ON&&!FB.user){app.innerHTML=vLogin();document.querySelector("nav").style.display="none";return;}
   if(Q)app.innerHTML=Q.done?vResult():Q.mode==="exam"?vExam():vQuiz();
-  else app.innerHTML=view==="today"?vToday():view==="practice"?vPractice():view==="progress"?vProgress():vGuide();
+  else app.innerHTML=view==="today"?vToday():view==="practice"?vPractice():view==="progress"?vProgress():view==="words"?vWords():vGuide();
   renderNav();
 }
 document.addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t)return;
   if(t.dataset.go){go(t.dataset.go);return;}
   if(t.dataset.sec){startQuiz("practice",t.dataset.sec);return;}
+  if(t.dataset.wc){W=wNew(t.dataset.wc);render();window.scrollTo(0,0);return;}
   if(t.dataset.ego!==undefined&&Q&&Q.parts){Q.qi=+t.dataset.ego;render();window.scrollTo(0,0);return;}
   if(t.dataset.eopt!==undefined&&Q&&Q.parts){const p=Q.parts[Q.si],i=+t.dataset.eopt;p.struck[Q.qi].delete(i);p.ans[Q.qi]=i;render();return;}
   if(t.dataset.ex!==undefined&&Q&&Q.parts){const p=Q.parts[Q.si],i=+t.dataset.ex,s=p.struck[Q.qi];s.has(i)?s.delete(i):s.add(i);if(p.ans[Q.qi]===i)p.ans[Q.qi]=null;render();return;}
@@ -1379,6 +1706,21 @@ document.addEventListener("click",e=>{
   const a=t.dataset.act;if(!a)return;
   if(a==="mission")startQuiz("mission");
   else if(a==="mock")startQuiz("mock");
+  else if(a==="review")startQuiz("review");
+  else if(a==="wc-flip"&&W&&W.deck){W.flip=!W.flip;render();}
+  else if((a==="wc-got"||a==="wc-again")&&W&&W.deck){
+    const c=W.deck[W.i];
+    if(a==="wc-got"){if(!c.re)W.knew++;}
+    else if(!c.re)W.deck.push({...c,re:true});
+    W.i++;W.flip=false;if(W.i>=W.deck.length)W.done=true;
+    render();window.scrollTo(0,0);
+  }
+  else if(a==="wc-say"&&W&&W.deck){
+    try{const u=new SpeechSynthesisUtterance(W.deck[W.i].en);u.lang="en-US";u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(err){toast("Sound is not available on this device");}
+  }
+  else if(a==="wc-quiz"&&W)startQuiz("words",W.cat);
+  else if(a==="wc-new"&&W){W=wNew(W.cat);render();window.scrollTo(0,0);}
+  else if(a==="wc-topics"){W={cat:null};render();window.scrollTo(0,0);}
   else if(a==="check"&&Q&&Q.picked!==null){Q.locked=true;render();}
   else if(a==="next"&&Q){
     Q.ans[Q.i]=Q.picked;
@@ -1396,7 +1738,7 @@ document.addEventListener("click",e=>{
   else if(a==="exam"){if(confirm("This is the full test: 64 questions in 12 timed parts, about 103 minutes. Once a part's time ends you cannot go back. Ready?"))startQuiz("exam");}
   else if(a==="quit"){if(confirm("Stop this round? Answers so far won't be saved."))go(view);}
   else if(a==="home")go("today");
-  else if(a==="again"){const m=Q.mode,s=Q.sec;startQuiz(m,s);}
+  else if(a==="again"){const m=Q.mode,s=m==="words"?Q.cat:Q.sec;startQuiz(m,s);}
   else if(a==="skin"||a==="cycleskin"){
     const v=a==="skin"?t.dataset.v:SKIN_KEYS[(SKIN_KEYS.indexOf(S.skin||"classic")+1)%SKIN_KEYS.length];
     if(SKINS[v]){S.skin=v;S.skinAt=Date.now();save();render();toast(SKINS[v].emoji+" "+SKINS[v].name+" theme");}
